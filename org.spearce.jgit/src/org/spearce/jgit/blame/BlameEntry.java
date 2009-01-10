@@ -26,4 +26,12 @@ public class BlameEntry {
 	 *  this is initially false - in dubio pro reo
 	 */
 	public boolean guilty = false;
+
+	@Override
+	public String toString() {
+		
+		return String.format("(%d -> %d,  %d)", Integer.valueOf(originalRange.start), Integer.valueOf(suspectStart), Integer.valueOf(originalRange.length));
+	}
+	
+	
 }
