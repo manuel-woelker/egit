@@ -34,7 +34,6 @@ class Scoreboard {
 		BlameEntry blameEntry = new BlameEntry();
 		Object[] data = finalObject.getData();
 		blameEntry.originalRange = new Range(0, data.length);
-		System.out.println(data);
 		blameEntry.suspect = finalObject;
 		blameEntry.suspectStart = 0;
 		blameEntries.add(blameEntry);
@@ -138,8 +137,8 @@ class Scoreboard {
 		}
 	}
 
-	private List<BlameEntry> blameOverlap(BlameEntry blameEntry,
-			Origin parent, CommonChunk commonChunk) {
+	private List<BlameEntry> blameOverlap(BlameEntry blameEntry, Origin parent,
+			CommonChunk commonChunk) {
 		List<BlameEntry> split = splitOverlap(blameEntry, parent, commonChunk);
 		return split;
 	}
@@ -163,8 +162,8 @@ class Scoreboard {
 	// plno = commonChunk.astart
 	// same = commonChunk.bstart+commonChunk.length
 
-	static List<BlameEntry> splitOverlap(BlameEntry blameEntry,
-			Origin parent, CommonChunk commonChunk) {
+	static List<BlameEntry> splitOverlap(BlameEntry blameEntry, Origin parent,
+			CommonChunk commonChunk) {
 		List<BlameEntry> result = new LinkedList<BlameEntry>();
 		// prechunk that can not be blamed on this parent
 		BlameEntry split = new BlameEntry();
@@ -263,12 +262,12 @@ class Scoreboard {
 		IDifference lastDifference = differences.get(differences.size() - 1);
 		int lastChangedLineA = lastDifference.getEndA();
 		if (lastChangedLineA == -1)
-			lastChangedLineA = lastDifference.getStartA();
+			lastChangedLineA = lastDifference.getStartA() - 1;
 		int firstCommonLineA = lastChangedLineA + 1;
 
 		int lastChangedLineB = lastDifference.getEndB();
 		if (lastChangedLineB == -1)
-			lastChangedLineB = lastDifference.getStartB();
+			lastChangedLineB = lastDifference.getStartB() - 1;
 		int firstCommonLineB = lastChangedLineB + 1;
 		int commonSuffixLength = Math.min(lengthA - firstCommonLineA, lengthB
 				- firstCommonLineB);

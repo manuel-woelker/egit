@@ -84,7 +84,7 @@ public class CommonChunkCalculationTest extends TestCase {
 
 	public void testSimpleAdditionFront() throws Exception {
 		List<TestDifference> differences = Arrays.asList(new TestDifference(0,
-				12, -1, -1));
+				12, 0, -1));
 		List<CommonChunk> expected = Arrays.asList(new CommonChunk(13, 0, 19));
 		assertComputation(differences, expected, 32, 20);
 	}
@@ -93,8 +93,8 @@ public class CommonChunkCalculationTest extends TestCase {
 		List<TestDifference> differences = Arrays.asList(new TestDifference(10,
 				12, 10, -1));
 		List<CommonChunk> expected = Arrays.asList(new CommonChunk(0, 0, 10),
-				new CommonChunk(13, 11, 19));
-		assertComputation(differences, expected, 32, 30);
+				new CommonChunk(13, 10, 20));
+		assertComputation(differences, expected, 33, 30);
 	}
 
 	public void testSimpleAdditionEnd() throws Exception {

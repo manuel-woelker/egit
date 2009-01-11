@@ -23,7 +23,22 @@ public class BlameEngine {
 		try {
 			ObjectId headId = repository.resolve(Constants.HEAD);
 			Commit lastCommit = repository.mapCommit(headId);
-			Origin finalOrigin = new Origin(lastCommit, path);
+			return blame(lastCommit, path);
+		} catch (Exception e) {
+			throw new RuntimeException("Internal error in BlameEngine", e);
+		}
+	}
+
+	/**
+	 * @param commit
+	 *            commit from which to start the blame process
+	 * @param path
+	 *            file path
+	 * @return list of blame entries linking line numbers to originating commit
+	 */
+	public List<BlameEntry> blame(Commit commit, String path) {
+		try {
+			Origin finalOrigin = new Origin(commit, path);
 			Scoreboard scoreboard = new Scoreboard(finalOrigin,
 					new JavaDiffImpl());
 			return scoreboard.assingBlame();
@@ -45,7 +60,7 @@ public class BlameEngine {
 
 			for (int i = blameEntry.suspectStart; i < blameEntry.suspectStart
 					+ blameEntry.originalRange.length; i++) {
-				System.out.println(String.format("%3d: [%.59s] %s", Integer
+				System.out.println(String.format("%3d: [%.120s] %s", Integer
 						.valueOf(lineno), blameEntry.suspect, data[i]));
 				lineno++;
 			}
