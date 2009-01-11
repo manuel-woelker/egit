@@ -23,9 +23,8 @@ public class BlameEngineTest extends TestCase {
 		for (BlameEntry blameEntry : blame) {
 			for (int i = blameEntry.suspectStart; i < blameEntry.suspectStart
 					+ blameEntry.originalRange.length; i++) {
-				System.out.println(String.format("%.8s",
-						((CommitOrigin) blameEntry.suspect).getCommit()
-								.getCommitId().name()));
+				System.out.println(String.format("%.8s", blameEntry.suspect
+						.getCommit().getCommitId().name()));
 			}
 		}
 		blameEngine.prettyPrint(blame);

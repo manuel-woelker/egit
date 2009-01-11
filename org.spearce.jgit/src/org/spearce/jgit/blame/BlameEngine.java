@@ -23,7 +23,7 @@ public class BlameEngine {
 		try {
 			ObjectId headId = repository.resolve(Constants.HEAD);
 			Commit lastCommit = repository.mapCommit(headId);
-			CommitOrigin finalOrigin = new CommitOrigin(lastCommit, path);
+			Origin finalOrigin = new Origin(lastCommit, path);
 			Scoreboard scoreboard = new Scoreboard(finalOrigin,
 					new JavaDiffImpl());
 			return scoreboard.assingBlame();

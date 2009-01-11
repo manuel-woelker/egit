@@ -7,18 +7,27 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
+import org.spearce.jgit.lib.Commit;
+import org.spearce.jgit.lib.ObjectId;
+import org.spearce.jgit.lib.Repository;
+
 /**
+ * Main structure for performing the blame algorithm
+ * 
+ * Name and structure are lifted from the cgit blame implementation (cf.
+ * builtin-blame.c)
+ * 
  * @author Manuel Woelker <manuel.woelker+github@gmail.com>
  * 
  */
 class Scoreboard {
 	LinkedList<BlameEntry> blameEntries = new LinkedList<BlameEntry>();
 
-	IOrigin finalOrigin;
+	Origin finalOrigin;
 
 	private final IDiff diff;
 
-	Scoreboard(IOrigin finalObject, IDiff diff) {
+	Scoreboard(Origin finalObject, IDiff diff) {
 		super();
 		this.finalOrigin = finalObject;
 		this.diff = diff;
@@ -44,7 +53,7 @@ class Scoreboard {
 			if (todo == null) {
 				break; // all done
 			}
-			IOrigin suspect = todo.suspect;
+			Origin suspect = todo.suspect;
 			passBlame(todo.suspect);
 
 			// Plead guilty for remaining entries
@@ -66,22 +75,22 @@ class Scoreboard {
 		return blameEntries;
 	}
 
-	private void passBlame(IOrigin suspect) {
+	private void passBlame(Origin suspect) {
 		// Simplified quite a lot
-		IOrigin[] parents = suspect.getParents();
-		for (IOrigin parent : parents) {
-			if (suspect.getObjectId().equals(parent.getObjectId())) {
+		Origin[] scapegoats = findScapegoats(suspect);
+		for (Origin scapegoat : scapegoats) {
+			if (suspect.getObjectId().equals(scapegoat.getObjectId())) {
 				// file has not changed, pass all blame
-				passWholeBlameToParent(suspect, parent);
+				passWholeBlameToParent(suspect, scapegoat);
 				return;
 			}
 		}
-		for (IOrigin parent : parents) {
-			passBlameToParent(suspect, parent);
+		for (Origin scapegoat : scapegoats) {
+			passBlameToParent(suspect, scapegoat);
 		}
 	}
 
-	private void passWholeBlameToParent(IOrigin target, IOrigin parent) {
+	private void passWholeBlameToParent(Origin target, Origin parent) {
 		for (ListIterator<BlameEntry> it = blameEntries.listIterator(); it
 				.hasNext();) {
 			BlameEntry blameEntry = it.next();
@@ -92,7 +101,7 @@ class Scoreboard {
 		}
 	}
 
-	private void passBlameToParent(IOrigin target, IOrigin parent) {
+	private void passBlameToParent(Origin target, Origin parent) {
 		IDifference[] differences = diff.diff(target.getData(), parent
 				.getData());
 		System.out.println("Inspecting " + target);
@@ -105,7 +114,7 @@ class Scoreboard {
 		}
 	}
 
-	private void blameChunk(IOrigin target, IOrigin parent,
+	private void blameChunk(Origin target, Origin parent,
 			CommonChunk commonChunk) {
 		for (ListIterator<BlameEntry> it = blameEntries.listIterator(); it
 				.hasNext();) {
@@ -130,27 +139,32 @@ class Scoreboard {
 	}
 
 	private List<BlameEntry> blameOverlap(BlameEntry blameEntry,
-			IOrigin parent, CommonChunk commonChunk) {
+			Origin parent, CommonChunk commonChunk) {
 		List<BlameEntry> split = splitOverlap(blameEntry, parent, commonChunk);
 		return split;
 	}
 
-	/*
-	 * It is known that lines between tlno to same came from parent, and e has
-	 * an overlap with that range. it also is known that parent's line plno
-	 * corresponds to e's line tlno.
-	 * 
-	 * <---- e -----> <------> <------------> <------------>
-	 * <------------------>
-	 * 
-	 * Split e into potentially three parts; before this chunk, the chunk to be
-	 * blamed for the parent, and after that portion.
-	 * 
-	 * tlno = commonChunk.bstart plno = commonChunk.astart same =
-	 * commonChunk.bstart+commonChunk.length
-	 */
-	static List<BlameEntry> splitOverlap(BlameEntry blameEntry, IOrigin parent,
-			CommonChunk commonChunk) {
+	// It is known that lines between tlno to same came from parent, and e
+	// has an overlap with that range. it also is known that parent's
+	// line plno corresponds to e's line tlno.
+	//	 
+	// <---- e ----->
+	// <------>
+	// <------------>
+	// <------------>
+	// <------------------>
+	//	 
+	// Split e into potentially three parts; before this chunk, the chunk
+	// to be blamed for the parent, and after that portion.
+	// [from builtin-blame.c split_overlap( )]
+	//	 
+	//	  
+	// tlno = commonChunk.bstart
+	// plno = commonChunk.astart
+	// same = commonChunk.bstart+commonChunk.length
+
+	static List<BlameEntry> splitOverlap(BlameEntry blameEntry,
+			Origin parent, CommonChunk commonChunk) {
 		List<BlameEntry> result = new LinkedList<BlameEntry>();
 		// prechunk that can not be blamed on this parent
 		BlameEntry split = new BlameEntry();
@@ -269,4 +283,36 @@ class Scoreboard {
 
 		return result;
 	}
+
+	/**
+	 * get scapegoat origins for this origin, i.e. origins for parent commits
+	 * 
+	 * a scapegoat in this context is a origin (for a parent commit) to that
+	 * this origin can pass blame on
+	 * 
+	 * 
+	 * Note: currently only the same filename is used, that means renames and
+	 * copies are not found
+	 * 
+	 * @param origin
+	 *            the origin for which to retrieve the scapegoats
+	 * 
+	 * @return collection of scapegoat parent origins
+	 */
+	Origin[] findScapegoats(Origin origin) {
+		Commit commit = origin.commit;
+		try {
+			ArrayList<Origin> resultList = new ArrayList<Origin>();
+			Repository repository = commit.getTree().getRepository();
+			for (ObjectId objectId : commit.getParentIds()) {
+				Commit parentCommit = repository.mapCommit(objectId);
+				resultList.add(new Origin(parentCommit, origin.filename));
+			}
+			return resultList.toArray(new Origin[0]);
+		} catch (Exception e) {
+			throw new RuntimeException(
+					"could not retrieve scapegoats for commit " + commit, e);
+		}
+	}
+
 }

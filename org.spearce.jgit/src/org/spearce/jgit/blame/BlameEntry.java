@@ -16,7 +16,7 @@ public class BlameEntry {
 	/**
 	 * origin to blame for the lines in the original range
 	 */
-	public IOrigin suspect;
+	public Origin suspect;
 
 	/**
 	 * start line number in the suspects version

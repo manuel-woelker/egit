@@ -11,10 +11,13 @@ import org.spearce.jgit.lib.Repository;
 import org.spearce.jgit.lib.TreeEntry;
 
 /**
+ * Origin object representing the origin of a part of the file, usually there
+ * should be one origin for each commit and path
+ * 
  * @author Manuel Woelker <manuel.woelker+github@gmail.com>
  * 
  */
-public class CommitOrigin implements IOrigin {
+public class Origin {
 
 	final Commit commit;
 
@@ -25,18 +28,27 @@ public class CommitOrigin implements IOrigin {
 		return commit;
 	}
 
-	private final String filename;
+	final String filename;
 
 	/**
+	 * creates a new Commit origin for a given commit and path
+	 * 
 	 * @param commit
+	 *            the commit object for this origin
 	 * @param filename
+	 *            the path of the file in this commit
 	 */
-	public CommitOrigin(Commit commit, String filename) {
+	public Origin(Commit commit, String filename) {
 		super();
 		this.commit = commit;
 		this.filename = filename;
 	}
 
+	/**
+	 * get the ObjectId of the file, used for identifying identical versions
+	 * 
+	 * @return object id
+	 */
 	public ObjectId getObjectId() {
 		try {
 			TreeEntry blobEntry = commit.getTree().findBlobMember(filename);
@@ -50,6 +62,11 @@ public class CommitOrigin implements IOrigin {
 		}
 	}
 
+	/**
+	 * get the file contents at this commit
+	 * 
+	 * @return an array of strings containing the file lines
+	 */
 	public Object[] getData() {
 		try {
 			Repository repository = commit.getTree().getRepository();
@@ -73,24 +90,8 @@ public class CommitOrigin implements IOrigin {
 		}
 	}
 
-	public IOrigin[] getParents() {
-		try {
-			ArrayList<IOrigin> resultList = new ArrayList<IOrigin>();
-			Repository repository = commit.getTree().getRepository();
-			for (ObjectId objectId : commit.getParentIds()) {
-				Commit parentCommit = repository.mapCommit(objectId);
-				resultList.add(new CommitOrigin(parentCommit, filename));
-			}
-			return resultList.toArray(new IOrigin[0]);
-		} catch (Exception e) {
-			throw new RuntimeException("could not retrieve parents of commit "
-					+ commit, e);
-		}
-	}
-
 	@Override
 	public String toString() {
-
 		return filename + " --> " + commit;
 	}
 
