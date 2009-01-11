@@ -101,7 +101,7 @@ class Scoreboard {
 	}
 
 	private void passBlameToParent(Origin target, Origin parent) {
-		IDifference[] differences = diff.diff(target.getData(), parent
+		IDifference[] differences = diff.diff(parent.getData(), target
 				.getData());
 		System.out.println("Inspecting " + target);
 		List<CommonChunk> commonChunks = computeCommonChunks(Arrays

@@ -22,19 +22,19 @@ public class JavaDiffImpl implements IDiff {
 		}
 
 		public int getEndA() {
-			return difference.getAddedEnd();
-		}
-
-		public int getEndB() {
 			return difference.getDeletedEnd();
 		}
 
+		public int getEndB() {
+			return difference.getAddedEnd();
+		}
+
 		public int getStartA() {
-			return difference.getAddedStart();
+			return difference.getDeletedStart();
 		}
 
 		public int getStartB() {
-			return difference.getDeletedStart();
+			return difference.getAddedStart();
 		}
 
 		@Override
