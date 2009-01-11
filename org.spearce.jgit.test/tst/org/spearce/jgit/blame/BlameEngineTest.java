@@ -2,6 +2,7 @@ package org.spearce.jgit.blame;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.spearce.jgit.lib.Commit;
@@ -14,6 +15,8 @@ import org.spearce.jgit.lib.RepositoryTestCase;
 import org.spearce.jgit.lib.Tree;
 
 public class BlameEngineTest extends RepositoryTestCase {
+
+	private static final String ENCODING = "UTF-8";
 
 	public void disabledTestBlame() throws Exception {
 		Repository repository = new Repository(new File("../.git"));
@@ -49,10 +52,10 @@ public class BlameEngineTest extends RepositoryTestCase {
 		int i = 0;
 		for (String version : versions) {
 			final ObjectId id = new ObjectWriter(repo).writeBlob(version
-					.getBytes("UTF-8"));
+					.getBytes(ENCODING));
 			final Tree tree = new Tree(repo);
-			tree.addEntry(new FileTreeEntry(tree, id, "test".getBytes("UTF-8"),
-					false));
+			tree.addEntry(new FileTreeEntry(tree, id,
+					"test".getBytes(ENCODING), false));
 			final ObjectId treeId = objectWriter.writeTree(tree);
 			final Commit commit = new Commit(repo);
 			commit.setAuthor(new PersonIdent(authors[i], "", 0, 0));
@@ -75,6 +78,140 @@ public class BlameEngineTest extends RepositoryTestCase {
 		Range[] expectedRanges = new Range[] { new Range(0, 3),
 				new Range(3, 3), new Range(6, 3) };
 		int[] expectedSuspectStarts = new int[] { 0, 0, 3 };
+		for (i = 0; i < expectedCommitIds.length; i++) {
+			BlameEntry blameEntry = blame.get(i);
+			assertTrue(blameEntry.guilty);
+			assertEquals(expectedCommitIds[i], blameEntry.suspect.commit
+					.getCommitId());
+			assertEquals(expectedRanges[i], blameEntry.originalRange);
+			assertEquals("entry " + i, expectedSuspectStarts[i],
+					blameEntry.suspectStart);
+		}
+	}
+
+	public void testMerge() throws Exception {
+		// Classic diamond merge ( dots just to keep formatting)
+		// .... a
+		// ... / \
+		// . ba . ac
+		// ... \ /
+		// ... bac
+
+		Repository repo = createNewEmptyRepo();
+		String a = "a 1\na 2\na 3\n";
+		String b = "b 1\nb 2\nb 3\n";
+		String c = "c 1\nc 2\nc 3\n";
+
+		String authors[] = new String[] { "a", "ba", "ac", "bac" };
+		String versions[] = new String[] { a, b + a, a + c, b + a + c };
+		// used to find commit ids
+		String parentCommitIdAuthors[] = new String[] { "", "a", "a", "ba,ac" };
+		ObjectWriter objectWriter = new ObjectWriter(repo);
+		ArrayList<ObjectId> commitIds = new ArrayList<ObjectId>();
+		HashMap<String, ObjectId> commitMap = new HashMap<String, ObjectId>();
+		int i = 0;
+		for (String version : versions) {
+			final ObjectId id = new ObjectWriter(repo).writeBlob(version
+					.getBytes(ENCODING));
+			final Tree tree = new Tree(repo);
+			tree.addEntry(new FileTreeEntry(tree, id,
+					"test".getBytes(ENCODING), false));
+			final ObjectId treeId = objectWriter.writeTree(tree);
+			final Commit commit = new Commit(repo);
+			commit.setAuthor(new PersonIdent(authors[i], "", 0, 0));
+			commit.setCommitter(new PersonIdent(authors[i], "", 0, 0));
+			commit.setMessage("test022\n");
+			commit.setTreeId(treeId);
+			ArrayList<ObjectId> parentIds = new ArrayList<ObjectId>();
+			for (String author : parentCommitIdAuthors[i].split(",")) {
+				if (author.length() > 0) {
+					parentIds.add(commitMap.get(author));
+				}
+			}
+			commit.setParentIds(parentIds.toArray(new ObjectId[0]));
+			ObjectId commitId = objectWriter.writeCommit(commit);
+			commitMap.put(authors[i], commitId);
+			commitIds.add(commitId);
+			i++;
+		}
+		Commit latestCommit = repo.mapCommit(commitMap.get("bac"));
+		BlameEngine blameEngine = new BlameEngine();
+		List<BlameEntry> blame = blameEngine.blame(latestCommit, "test");
+		blameEngine.prettyPrint(blame);
+		ObjectId[] expectedCommitIds = new ObjectId[] { commitMap.get("ba"),
+				commitMap.get("a"), commitMap.get("ac") };
+		Range[] expectedRanges = new Range[] { new Range(0, 3),
+				new Range(3, 3), new Range(6, 3) };
+		int[] expectedSuspectStarts = new int[] { 0, 0, 3 };
+		for (i = 0; i < expectedCommitIds.length; i++) {
+			BlameEntry blameEntry = blame.get(i);
+			assertTrue(blameEntry.guilty);
+			assertEquals(expectedCommitIds[i], blameEntry.suspect.commit
+					.getCommitId());
+			assertEquals(expectedRanges[i], blameEntry.originalRange);
+			assertEquals("entry " + i, expectedSuspectStarts[i],
+					blameEntry.suspectStart);
+		}
+	}
+
+	public void testMergeWithModifications() throws Exception {
+		// Classic diamond merge ( dots just to keep formatting)
+		// .... a
+		// ... / \
+		// . ba . ac
+		// ... \ /
+		// .. bxayc
+
+		Repository repo = createNewEmptyRepo();
+		String a = "a 1\na 2\na 3\n";
+		String b = "b 1\nb 2\nb 3\n";
+		String c = "c 1\nc 2\nc 3\n";
+		String x = "x 1\nx 2\nx 3\n";
+		String y = "y 1\ny 2\ny 3\n";
+
+		String authors[] = new String[] { "a", "ba", "ac", "bxayc" };
+		String versions[] = new String[] { a, b + a, a + c, b + x + a + y + c };
+		// used to find commit ids
+		String parentCommitIdAuthors[] = new String[] { "", "a", "a", "ba,ac" };
+		ObjectWriter objectWriter = new ObjectWriter(repo);
+		ArrayList<ObjectId> commitIds = new ArrayList<ObjectId>();
+		HashMap<String, ObjectId> commitMap = new HashMap<String, ObjectId>();
+		int i = 0;
+		for (String version : versions) {
+			final ObjectId id = new ObjectWriter(repo).writeBlob(version
+					.getBytes(ENCODING));
+			final Tree tree = new Tree(repo);
+			tree.addEntry(new FileTreeEntry(tree, id,
+					"test".getBytes(ENCODING), false));
+			final ObjectId treeId = objectWriter.writeTree(tree);
+			final Commit commit = new Commit(repo);
+			commit.setAuthor(new PersonIdent(authors[i], "", 0, 0));
+			commit.setCommitter(new PersonIdent(authors[i], "", 0, 0));
+			commit.setMessage("test022\n");
+			commit.setTreeId(treeId);
+			ArrayList<ObjectId> parentIds = new ArrayList<ObjectId>();
+			for (String author : parentCommitIdAuthors[i].split(",")) {
+				if (author.length() > 0) {
+					parentIds.add(commitMap.get(author));
+				}
+			}
+			commit.setParentIds(parentIds.toArray(new ObjectId[0]));
+			ObjectId commitId = objectWriter.writeCommit(commit);
+			commitMap.put(authors[i], commitId);
+			commitIds.add(commitId);
+			i++;
+		}
+		Commit latestCommit = repo.mapCommit(commitMap.get("bxayc"));
+		BlameEngine blameEngine = new BlameEngine();
+		List<BlameEntry> blame = blameEngine.blame(latestCommit, "test");
+		blameEngine.prettyPrint(blame);
+		ObjectId[] expectedCommitIds = new ObjectId[] { commitMap.get("ba"),
+				commitMap.get("bxayc"), commitMap.get("a"),
+				commitMap.get("bxayc"), commitMap.get("ac") };
+		Range[] expectedRanges = new Range[] { new Range(0, 3),
+				new Range(3, 3), new Range(6, 3), new Range(9, 3),
+				new Range(12, 3) };
+		int[] expectedSuspectStarts = new int[] { 0, 3, 0, 9, 3 };
 		for (i = 0; i < expectedCommitIds.length; i++) {
 			BlameEntry blameEntry = blame.get(i);
 			assertTrue(blameEntry.guilty);

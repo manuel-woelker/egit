@@ -104,6 +104,14 @@ public class CommonChunkCalculationTest extends TestCase {
 		assertComputation(differences, expected, 12, 10);
 	}
 
+	public void testSimpleAdditionTwoDifferences() throws Exception {
+		List<TestDifference> differences = Arrays.asList(new TestDifference(3,
+				-1, 3, 5), new TestDifference(6, -1, 9, 14));
+		List<CommonChunk> expected = Arrays.asList(new CommonChunk(0, 0, 3),
+				new CommonChunk(3, 6, 3));
+		assertComputation(differences, expected, 6, 15);
+	}
+
 	private void assertComputation(List<TestDifference> differences,
 			List<CommonChunk> expected, int lengthA, int lengthB) {
 		{

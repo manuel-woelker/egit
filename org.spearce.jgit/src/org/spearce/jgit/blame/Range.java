@@ -39,4 +39,9 @@ public class Range {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return String.format("(%d:+%d)", Integer.valueOf(start), Integer
+				.valueOf(length));
+	}
 }

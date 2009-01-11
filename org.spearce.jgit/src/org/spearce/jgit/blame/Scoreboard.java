@@ -240,12 +240,12 @@ class Scoreboard {
 			IDifference nextDifference = it.next();
 			int lastChangedLineA = previousDifference.getEndA();
 			if (lastChangedLineA == -1)
-				lastChangedLineA = previousDifference.getStartA();
+				lastChangedLineA = previousDifference.getStartA() - 1;
 			int firstCommonLineA = lastChangedLineA + 1;
 
 			int lastChangedLineB = previousDifference.getEndB();
 			if (lastChangedLineB == -1)
-				lastChangedLineB = previousDifference.getStartB();
+				lastChangedLineB = previousDifference.getStartB() - 1;
 			int firstCommonLineB = lastChangedLineB + 1;
 			int commonLengthA = nextDifference.getStartA() - firstCommonLineA;
 			int commonLengthB = nextDifference.getStartB() - firstCommonLineB;
