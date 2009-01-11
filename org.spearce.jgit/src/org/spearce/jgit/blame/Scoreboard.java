@@ -50,15 +50,15 @@ class Scoreboard {
 			// Plead guilty for remaining entries
 			List<BlameEntry> guilty = new ArrayList<BlameEntry>();
 			for (BlameEntry blameEntry : blameEntries) {
-				if (suspect.equals(blameEntry.suspect)) {					
+				if (suspect.equals(blameEntry.suspect)) {
 					blameEntry.guilty = true;
 					guilty.add(blameEntry);
 				}
 			}
-			if(!guilty.isEmpty()) {
-				System.out.println(suspect + " pleading guilty for:");				
-			}			
-			for(BlameEntry blameEntry: guilty) {
+			if (!guilty.isEmpty()) {
+				System.out.println(suspect + " pleading guilty for:");
+			}
+			for (BlameEntry blameEntry : guilty) {
 				System.out.println("\t" + blameEntry);
 			}
 
@@ -95,7 +95,7 @@ class Scoreboard {
 	private void passBlameToParent(IOrigin target, IOrigin parent) {
 		IDifference[] differences = diff.diff(target.getData(), parent
 				.getData());
-		System.out.println("Inspecting "+target); 
+		System.out.println("Inspecting " + target);
 		List<CommonChunk> commonChunks = computeCommonChunks(Arrays
 				.asList(differences), parent.getData().length,
 				target.getData().length);
@@ -149,8 +149,8 @@ class Scoreboard {
 	 * tlno = commonChunk.bstart plno = commonChunk.astart same =
 	 * commonChunk.bstart+commonChunk.length
 	 */
-	private List<BlameEntry> splitOverlap(BlameEntry blameEntry,
-			IOrigin parent, CommonChunk commonChunk) {
+	static List<BlameEntry> splitOverlap(BlameEntry blameEntry, IOrigin parent,
+			CommonChunk commonChunk) {
 		List<BlameEntry> result = new LinkedList<BlameEntry>();
 		// prechunk that can not be blamed on this parent
 		BlameEntry split = new BlameEntry();
@@ -193,13 +193,13 @@ class Scoreboard {
 		}
 		split.originalRange.length = chunkEnd - split.originalRange.start;
 
-//		System.out.println("split "+ blameEntry);
+		// System.out.println("split "+ blameEntry);
 		int sum = 0;
-		for(BlameEntry each: result) {
-//			System.out.println("\t-> "+ each);
+		for (BlameEntry each : result) {
+			// System.out.println("\t-> "+ each);
 			sum += each.originalRange.length;
 		}
-		if(sum != blameEntry.originalRange.length) {
+		if (sum != blameEntry.originalRange.length) {
 			throw new RuntimeException("Internal error splitting blameentries");
 		}
 		return result;
@@ -228,19 +228,20 @@ class Scoreboard {
 			int lastChangedLineA = previousDifference.getEndA();
 			if (lastChangedLineA == -1)
 				lastChangedLineA = previousDifference.getStartA();
-			int firstCommonLineA = lastChangedLineA+1;
-			
+			int firstCommonLineA = lastChangedLineA + 1;
+
 			int lastChangedLineB = previousDifference.getEndB();
 			if (lastChangedLineB == -1)
 				lastChangedLineB = previousDifference.getStartB();
-			int firstCommonLineB = lastChangedLineB+1;
+			int firstCommonLineB = lastChangedLineB + 1;
 			int commonLengthA = nextDifference.getStartA() - firstCommonLineA;
 			int commonLengthB = nextDifference.getStartB() - firstCommonLineB;
 			if (commonLengthA != commonLengthA) {
 				throw new RuntimeException("lengths not equal: "
 						+ commonLengthA + "!=" + commonLengthB);
 			}
-			result.add(new CommonChunk(firstCommonLineA, firstCommonLineB, commonLengthA));
+			result.add(new CommonChunk(firstCommonLineA, firstCommonLineB,
+					commonLengthA));
 			previousDifference = nextDifference;
 		}
 
@@ -249,16 +250,18 @@ class Scoreboard {
 		int lastChangedLineA = lastDifference.getEndA();
 		if (lastChangedLineA == -1)
 			lastChangedLineA = lastDifference.getStartA();
-		int firstCommonLineA = lastChangedLineA+1;
+		int firstCommonLineA = lastChangedLineA + 1;
 
 		int lastChangedLineB = lastDifference.getEndB();
 		if (lastChangedLineB == -1)
 			lastChangedLineB = lastDifference.getStartB();
-		int firstCommonLineB = lastChangedLineB+1;
-		int commonSuffixLength = Math.min(lengthA - firstCommonLineA, lengthB - firstCommonLineB);
+		int firstCommonLineB = lastChangedLineB + 1;
+		int commonSuffixLength = Math.min(lengthA - firstCommonLineA, lengthB
+				- firstCommonLineB);
 
 		if (commonSuffixLength > 0) {
-			result.add(new CommonChunk(firstCommonLineA, firstCommonLineB, commonSuffixLength));
+			result.add(new CommonChunk(firstCommonLineA, firstCommonLineB,
+					commonSuffixLength));
 		}
 
 		// Sanity check

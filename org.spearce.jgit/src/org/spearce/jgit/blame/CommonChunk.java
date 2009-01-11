@@ -20,7 +20,8 @@ class CommonChunk {
 
 	@Override
 	public String toString() {
-		return String.format("Common <%d:%d  %d>", Integer.valueOf(astart), Integer.valueOf(bstart), Integer.valueOf(length));
+		return String.format("Common <%d:%d  %d>", Integer.valueOf(astart),
+				Integer.valueOf(bstart), Integer.valueOf(length));
 	}
 
 	@Override
@@ -50,5 +51,5 @@ class CommonChunk {
 			return false;
 		return true;
 	}
-	
+
 }

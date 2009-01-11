@@ -60,10 +60,10 @@ public class CommitOrigin implements IOrigin {
 			}
 			ObjectLoader objectLoader = repository.openBlob(blobEntry.getId());
 			String string = new String(objectLoader.getBytes());
-			Pattern pattern = Pattern.compile("^(.*)$",Pattern.MULTILINE);
+			Pattern pattern = Pattern.compile("^(.*)$", Pattern.MULTILINE);
 			Matcher matcher = pattern.matcher(string);
 			ArrayList<String> resultList = new ArrayList<String>();
-			while(matcher.find()) {
+			while (matcher.find()) {
 				resultList.add(matcher.group(1));
 			}
 			return resultList.toArray();

@@ -5,10 +5,12 @@ import java.util.List;
 import org.incava.util.diff.Diff;
 import org.incava.util.diff.Difference;
 
-/** Diff implementation backed by the incava diff library
+/**
+ * Diff implementation backed by the incava diff library
+ * 
  * @see "http://www.incava.org/projects/java/java-diff/"
  * @author Manuel Woelker <manuel.woelker+github@gmail.com>
- *
+ * 
  */
 public class JavaDiffImpl implements IDiff {
 	private static class JavaDifferenceImpl implements IDifference {
@@ -37,13 +39,14 @@ public class JavaDiffImpl implements IDiff {
 
 		@Override
 		public String toString() {
-		
-			return String.format("Diff <%d,%d  %d,%d>", Integer.valueOf(getStartA()), Integer.valueOf(getEndA()), Integer.valueOf(getStartB()), Integer.valueOf(getEndB()));
+
+			return String.format("Diff <%d,%d  %d,%d>", Integer
+					.valueOf(getStartA()), Integer.valueOf(getEndA()), Integer
+					.valueOf(getStartB()), Integer.valueOf(getEndB()));
 		}
-		
-		
+
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public IDifference[] diff(Object[] a, Object[] b) {
 		Diff diff = new Diff(a, b);
