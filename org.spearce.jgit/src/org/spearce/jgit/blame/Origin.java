@@ -4,11 +4,12 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.spearce.jgit.lib.Commit;
 import org.spearce.jgit.lib.ObjectId;
 import org.spearce.jgit.lib.ObjectLoader;
 import org.spearce.jgit.lib.Repository;
 import org.spearce.jgit.lib.TreeEntry;
+import org.spearce.jgit.revwalk.RevCommit;
+import org.spearce.jgit.revwalk.RevTree;
 
 /**
  * Origin object representing the origin of a part of the file, usually there
@@ -19,27 +20,32 @@ import org.spearce.jgit.lib.TreeEntry;
  */
 public class Origin {
 
-	final Commit commit;
+	final RevCommit commit;
 
 	/**
 	 * @return the associated commit
 	 */
-	public Commit getCommit() {
+	public RevCommit getCommit() {
 		return commit;
 	}
 
 	final String filename;
 
+	private final Repository repository;
+
 	/**
 	 * creates a new Commit origin for a given commit and path
 	 * 
+	 * @param repository
+	 *            git repository for this origin
 	 * @param commit
 	 *            the commit object for this origin
 	 * @param filename
 	 *            the path of the file in this commit
 	 */
-	public Origin(Commit commit, String filename) {
+	public Origin(Repository repository, RevCommit commit, String filename) {
 		super();
+		this.repository = repository;
 		this.commit = commit;
 		this.filename = filename;
 	}
@@ -51,14 +57,16 @@ public class Origin {
 	 */
 	public ObjectId getObjectId() {
 		try {
-			TreeEntry blobEntry = commit.getTree().findBlobMember(filename);
+			RevTree revTree = commit.getTree();
+			TreeEntry blobEntry = repository.mapTree(revTree).findBlobMember(
+					filename);
 			if (blobEntry == null) {
 				return ObjectId.zeroId();
 			}
 			return blobEntry.getId();
 		} catch (Exception e) {
 			throw new RuntimeException("Error retrieving data for origin "
-					+ this);
+					+ this, e);
 		}
 	}
 
@@ -69,8 +77,9 @@ public class Origin {
 	 */
 	public Object[] getData() {
 		try {
-			Repository repository = commit.getTree().getRepository();
-			TreeEntry blobEntry = commit.getTree().findBlobMember(filename);
+			RevTree revTree = commit.getTree();
+			TreeEntry blobEntry = repository.mapTree(revTree).findBlobMember(
+					filename);
 			if (blobEntry == null) {
 				// does not exist yet
 				return new Object[0];

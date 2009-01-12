@@ -13,19 +13,19 @@ import org.spearce.jgit.lib.PersonIdent;
 import org.spearce.jgit.lib.Repository;
 import org.spearce.jgit.lib.RepositoryTestCase;
 import org.spearce.jgit.lib.Tree;
+import org.spearce.jgit.revwalk.RevWalk;
 
 public class BlameEngineTest extends RepositoryTestCase {
 
 	private static final String ENCODING = "UTF-8";
 
-	public void disabledTestBlame() throws Exception {
+	public void testBlame() throws Exception {
 		Repository repository = new Repository(new File("../.git"));
 		System.out.println(repository.getFullBranch());
-		BlameEngine blameEngine = new BlameEngine();
+		BlameEngine blameEngine = new BlameEngine(repository);
 		// List<BlameEntry> blame = blameEngine.blame(repository,
 		// "EGIT_INSTALL");
-		List<BlameEntry> blame = blameEngine.blame(repository,
-				"SUBMITTING_PATCHES");
+		List<BlameEntry> blame = blameEngine.blame("SUBMITTING_PATCHES");
 		// List<BlameEntry> blame = blameEngine.blame(repository,
 		// "org.spearce.jgit/.classpath");
 		// List<BlameEntry> blame = blameEngine.blame(repository, "TODO");
@@ -33,7 +33,7 @@ public class BlameEngineTest extends RepositoryTestCase {
 			for (int i = blameEntry.suspectStart; i < blameEntry.suspectStart
 					+ blameEntry.originalRange.length; i++) {
 				System.out.println(String.format("%.8s", blameEntry.suspect
-						.getCommit().getCommitId().name()));
+						.getCommit().name()));
 			}
 		}
 		blameEngine.prettyPrint(blame);
@@ -71,8 +71,10 @@ public class BlameEngineTest extends RepositoryTestCase {
 			i++;
 		}
 		Commit latestCommit = repo.mapCommit(lastCommitId);
-		BlameEngine blameEngine = new BlameEngine();
-		List<BlameEntry> blame = blameEngine.blame(latestCommit, "test");
+		BlameEngine blameEngine = new BlameEngine(repo);
+		RevWalk revWalk = new RevWalk(repo);
+		List<BlameEntry> blame = blameEngine.blame(revWalk
+				.parseCommit(latestCommit.getCommitId()), "test");
 		ObjectId[] expectedCommitIds = new ObjectId[] { commitIds.get(2),
 				commitIds.get(0), commitIds.get(1) };
 		Range[] expectedRanges = new Range[] { new Range(0, 3),
@@ -81,8 +83,7 @@ public class BlameEngineTest extends RepositoryTestCase {
 		for (i = 0; i < expectedCommitIds.length; i++) {
 			BlameEntry blameEntry = blame.get(i);
 			assertTrue(blameEntry.guilty);
-			assertEquals(expectedCommitIds[i], blameEntry.suspect.commit
-					.getCommitId());
+			assertEquals(expectedCommitIds[i], blameEntry.suspect.commit.copy());
 			assertEquals(expectedRanges[i], blameEntry.originalRange);
 			assertEquals("entry " + i, expectedSuspectStarts[i],
 					blameEntry.suspectStart);
@@ -135,8 +136,10 @@ public class BlameEngineTest extends RepositoryTestCase {
 			i++;
 		}
 		Commit latestCommit = repo.mapCommit(commitMap.get("bac"));
-		BlameEngine blameEngine = new BlameEngine();
-		List<BlameEntry> blame = blameEngine.blame(latestCommit, "test");
+		BlameEngine blameEngine = new BlameEngine(repo);
+		RevWalk revWalk = new RevWalk(repo);
+		List<BlameEntry> blame = blameEngine.blame(revWalk
+				.parseCommit(latestCommit.getCommitId()), "test");
 		blameEngine.prettyPrint(blame);
 		ObjectId[] expectedCommitIds = new ObjectId[] { commitMap.get("ba"),
 				commitMap.get("a"), commitMap.get("ac") };
@@ -146,8 +149,7 @@ public class BlameEngineTest extends RepositoryTestCase {
 		for (i = 0; i < expectedCommitIds.length; i++) {
 			BlameEntry blameEntry = blame.get(i);
 			assertTrue(blameEntry.guilty);
-			assertEquals(expectedCommitIds[i], blameEntry.suspect.commit
-					.getCommitId());
+			assertEquals(expectedCommitIds[i], blameEntry.suspect.commit.copy());
 			assertEquals(expectedRanges[i], blameEntry.originalRange);
 			assertEquals("entry " + i, expectedSuspectStarts[i],
 					blameEntry.suspectStart);
@@ -202,8 +204,10 @@ public class BlameEngineTest extends RepositoryTestCase {
 			i++;
 		}
 		Commit latestCommit = repo.mapCommit(commitMap.get("bxayc"));
-		BlameEngine blameEngine = new BlameEngine();
-		List<BlameEntry> blame = blameEngine.blame(latestCommit, "test");
+		BlameEngine blameEngine = new BlameEngine(repo);
+		RevWalk revWalk = new RevWalk(repo);
+		List<BlameEntry> blame = blameEngine.blame(revWalk
+				.parseCommit(latestCommit.getCommitId()), "test");
 		blameEngine.prettyPrint(blame);
 		ObjectId[] expectedCommitIds = new ObjectId[] { commitMap.get("ba"),
 				commitMap.get("bxayc"), commitMap.get("a"),
@@ -215,8 +219,7 @@ public class BlameEngineTest extends RepositoryTestCase {
 		for (i = 0; i < expectedCommitIds.length; i++) {
 			BlameEntry blameEntry = blame.get(i);
 			assertTrue(blameEntry.guilty);
-			assertEquals(expectedCommitIds[i], blameEntry.suspect.commit
-					.getCommitId());
+			assertEquals(expectedCommitIds[i], blameEntry.suspect.commit.copy());
 			assertEquals(expectedRanges[i], blameEntry.originalRange);
 			assertEquals("entry " + i, expectedSuspectStarts[i],
 					blameEntry.suspectStart);

@@ -7,9 +7,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
-import org.spearce.jgit.lib.Commit;
-import org.spearce.jgit.lib.ObjectId;
 import org.spearce.jgit.lib.Repository;
+import org.spearce.jgit.revwalk.RevCommit;
+import org.spearce.jgit.revwalk.RevWalk;
 
 /**
  * Main structure for performing the blame algorithm
@@ -27,8 +27,14 @@ class Scoreboard {
 
 	private final IDiff diff;
 
-	Scoreboard(Origin finalObject, IDiff diff) {
+	private final Repository repository;
+
+	private final RevWalk revWalk;
+
+	Scoreboard(RevWalk revWalk, Origin finalObject, IDiff diff) {
 		super();
+		this.revWalk = revWalk;
+		this.repository = revWalk.getRepository();
 		this.finalOrigin = finalObject;
 		this.diff = diff;
 		BlameEntry blameEntry = new BlameEntry();
@@ -40,38 +46,57 @@ class Scoreboard {
 	}
 
 	List<BlameEntry> assingBlame() {
-		while (true) {
-			BlameEntry todo = null;
-			/* find one suspect to break down */
-			for (BlameEntry blameEntry : blameEntries) {
-				if (!blameEntry.guilty) {
-					todo = blameEntry;
-					break;
-				}
-			}
-			if (todo == null) {
-				break; // all done
-			}
-			Origin suspect = todo.suspect;
-			passBlame(todo.suspect);
+		try {
 
-			// Plead guilty for remaining entries
-			List<BlameEntry> guilty = new ArrayList<BlameEntry>();
-			for (BlameEntry blameEntry : blameEntries) {
-				if (suspect.equals(blameEntry.suspect)) {
-					blameEntry.guilty = true;
-					guilty.add(blameEntry);
-				}
-			}
-			if (!guilty.isEmpty()) {
-				System.out.println(suspect + " pleading guilty for:");
-			}
-			for (BlameEntry blameEntry : guilty) {
-				System.out.println("\t" + blameEntry);
-			}
+			while (true) {
+				RevCommit commit = revWalk.next();
+				BlameEntry todo = null;
+				/* find one suspect to break down */
+				boolean done = true;
+				for (BlameEntry blameEntry : blameEntries) {
+					if (blameEntry.suspect.commit.equals(commit)) {
+						todo = blameEntry;
+						done = false;
+						break;
+					}
+					if (!blameEntry.guilty) {
+						// break;
+						done = false;
 
+					}
+				}
+				if (done) {
+					break; // all done
+				}
+				if (commit == null) {
+					throw new RuntimeException("Internal error");
+				}
+				if (todo == null) {
+					continue;
+				}
+				Origin suspect = todo.suspect;
+				passBlame(todo.suspect);
+
+				// Plead guilty for remaining entries
+				List<BlameEntry> guilty = new ArrayList<BlameEntry>();
+				for (BlameEntry blameEntry : blameEntries) {
+					if (suspect.equals(blameEntry.suspect)) {
+						blameEntry.guilty = true;
+						guilty.add(blameEntry);
+					}
+				}
+				if (!guilty.isEmpty()) {
+					System.out.println(suspect + " pleading guilty for:");
+				}
+				for (BlameEntry blameEntry : guilty) {
+					System.out.println("\t" + blameEntry);
+				}
+
+			}
+			return blameEntries;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
 		}
-		return blameEntries;
 	}
 
 	private void passBlame(Origin suspect) {
@@ -299,13 +324,11 @@ class Scoreboard {
 	 * @return collection of scapegoat parent origins
 	 */
 	Origin[] findScapegoats(Origin origin) {
-		Commit commit = origin.commit;
+		RevCommit commit = origin.commit;
 		try {
 			ArrayList<Origin> resultList = new ArrayList<Origin>();
-			Repository repository = commit.getTree().getRepository();
-			for (ObjectId objectId : commit.getParentIds()) {
-				Commit parentCommit = repository.mapCommit(objectId);
-				resultList.add(new Origin(parentCommit, origin.filename));
+			for (RevCommit parent : commit.getParents()) {
+				resultList.add(new Origin(repository, parent, origin.filename));
 			}
 			return resultList.toArray(new Origin[0]);
 		} catch (Exception e) {

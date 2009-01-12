@@ -2,27 +2,46 @@ package org.spearce.jgit.blame;
 
 import java.util.List;
 
-import org.spearce.jgit.lib.Commit;
 import org.spearce.jgit.lib.Constants;
 import org.spearce.jgit.lib.ObjectId;
 import org.spearce.jgit.lib.Repository;
+import org.spearce.jgit.revwalk.RevCommit;
+import org.spearce.jgit.revwalk.RevSort;
+import org.spearce.jgit.revwalk.RevWalk;
 
 /**
  * @author Manuel Woelker <manuel.woelker+github@gmail.com>
  * 
  */
 public class BlameEngine {
+	private Repository repository;
+
+	private final RevWalk revWalk;
+
 	/**
 	 * @param repository
-	 *            git repository
+	 */
+	public BlameEngine(final Repository repository) {
+		this(new RevWalk(repository));
+	}
+
+	/**
+	 * @param revWalk
+	 */
+	public BlameEngine(RevWalk revWalk) {
+		this.revWalk = revWalk;
+		this.repository = revWalk.getRepository();
+	}
+
+	/**
 	 * @param path
 	 *            file path
 	 * @return list of blame entries linking line numbers to originating commit
 	 */
-	public List<BlameEntry> blame(Repository repository, String path) {
+	public List<BlameEntry> blame(String path) {
 		try {
 			ObjectId headId = repository.resolve(Constants.HEAD);
-			Commit lastCommit = repository.mapCommit(headId);
+			RevCommit lastCommit = revWalk.parseCommit(headId);
 			return blame(lastCommit, path);
 		} catch (Exception e) {
 			throw new RuntimeException("Internal error in BlameEngine", e);
@@ -36,10 +55,13 @@ public class BlameEngine {
 	 *            file path
 	 * @return list of blame entries linking line numbers to originating commit
 	 */
-	public List<BlameEntry> blame(Commit commit, String path) {
+	public List<BlameEntry> blame(RevCommit commit, String path) {
 		try {
-			Origin finalOrigin = new Origin(commit, path);
-			Scoreboard scoreboard = new Scoreboard(finalOrigin,
+			Origin finalOrigin = new Origin(repository, commit, path);
+			revWalk.sort(RevSort.TOPO);
+			revWalk.reset();
+			revWalk.markStart(commit);
+			Scoreboard scoreboard = new Scoreboard(revWalk, finalOrigin,
 					new JavaDiffImpl());
 			return scoreboard.assingBlame();
 		} catch (Exception e) {

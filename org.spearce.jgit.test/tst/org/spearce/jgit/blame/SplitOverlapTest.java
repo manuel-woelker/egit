@@ -11,8 +11,8 @@ public class SplitOverlapTest extends TestCase {
 		// <ttttttttt> < entry (t = target origin, i.e. current suspect)
 		// <xxxxxxxxx> < common chunk
 		// <ppppppppp> < result (p = parent origin, i.e. potential suspect)
-		Origin parent = new Origin(null, "target");
-		Origin target = new Origin(null, "target");
+		Origin parent = new Origin(null, null, "target");
+		Origin target = new Origin(null, null, "target");
 
 		BlameEntry blameEntry = new BlameEntry();
 		blameEntry.originalRange = new Range(17, 4);
@@ -32,8 +32,8 @@ public class SplitOverlapTest extends TestCase {
 		// <ttttttttt> < entry
 		// ---<xxx>--- < common chunk
 		// <t><ppp><t> < result
-		Origin parent = new Origin(null, "target");
-		Origin target = new Origin(null, "target");
+		Origin parent = new Origin(null, null, "target");
+		Origin target = new Origin(null, null, "target");
 
 		BlameEntry blameEntry = new BlameEntry();
 		blameEntry.originalRange = new Range(17, 12);
@@ -62,8 +62,8 @@ public class SplitOverlapTest extends TestCase {
 		// ---<ttt>--- < entry
 		// <xxxxxxxxx> < common chunk
 		// ---<ppp>--- < result
-		Origin parent = new Origin(null, "target");
-		Origin target = new Origin(null, "target");
+		Origin parent = new Origin(null, null, "target");
+		Origin target = new Origin(null, null, "target");
 
 		BlameEntry blameEntry = new BlameEntry();
 		blameEntry.originalRange = new Range(17, 12);
@@ -83,8 +83,8 @@ public class SplitOverlapTest extends TestCase {
 		// ---<tttttt> < entry
 		// <xxxxxx>--- < common chunk
 		// ---<ppp><t> < result
-		Origin parent = new Origin(null, "target");
-		Origin target = new Origin(null, "target");
+		Origin parent = new Origin(null, null, "target");
+		Origin target = new Origin(null, null, "target");
 
 		BlameEntry blameEntry = new BlameEntry();
 		blameEntry.originalRange = new Range(17, 12);
@@ -108,8 +108,8 @@ public class SplitOverlapTest extends TestCase {
 		// <tttttt>--- < entry
 		// ---<xxxxxx> < common chunk
 		// <t><ppp>--- < result
-		Origin parent = new Origin(null, "target");
-		Origin target = new Origin(null, "target");
+		Origin parent = new Origin(null, null, "target");
+		Origin target = new Origin(null, null, "target");
 
 		BlameEntry blameEntry = new BlameEntry();
 		blameEntry.originalRange = new Range(17, 12);
