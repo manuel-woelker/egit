@@ -43,6 +43,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
+import org.spearce.jgit.diff.CommonChunk;
+import org.spearce.jgit.diff.IDiff;
+import org.spearce.jgit.diff.IDifference;
 import org.spearce.jgit.lib.Repository;
 import org.spearce.jgit.revwalk.RevCommit;
 import org.spearce.jgit.revwalk.RevWalk;
@@ -181,10 +184,10 @@ class Scoreboard {
 			if (blameEntry.guilty || !(blameEntry.suspect.equals(target))) {
 				continue; // not what we are looking for
 			}
-			if (commonChunk.bstart + commonChunk.length <= blameEntry.suspectStart) {
+			if (commonChunk.getBstart() + commonChunk.getLength() <= blameEntry.suspectStart) {
 				continue; // common chunk ends before this entry starts
 			}
-			if (commonChunk.bstart < blameEntry.suspectStart
+			if (commonChunk.getBstart() < blameEntry.suspectStart
 					+ blameEntry.originalRange.length) {
 				List<BlameEntry> newBlameEntries = blameOverlap(blameEntry,
 						parent, commonChunk);
@@ -227,26 +230,26 @@ class Scoreboard {
 		List<BlameEntry> result = new LinkedList<BlameEntry>();
 		// prechunk that can not be blamed on this parent
 		BlameEntry split = new BlameEntry();
-		if (blameEntry.suspectStart < commonChunk.bstart) {
+		if (blameEntry.suspectStart < commonChunk.getBstart()) {
 			BlameEntry pre = new BlameEntry();
 			pre.suspect = blameEntry.suspect;
 			pre.suspectStart = blameEntry.suspectStart;
 			pre.originalRange = new Range(blameEntry.originalRange.start,
-					commonChunk.bstart - blameEntry.suspectStart);
+					commonChunk.getBstart() - blameEntry.suspectStart);
 			result.add(pre);
 			split.originalRange = new Range(blameEntry.originalRange.start
-					+ (commonChunk.bstart - blameEntry.suspectStart), 0);
-			split.suspectStart = commonChunk.astart;
+					+ (commonChunk.getBstart() - blameEntry.suspectStart), 0);
+			split.suspectStart = commonChunk.getAstart();
 		} else {
 			split.originalRange = new Range(blameEntry.originalRange.start, 0);
-			split.suspectStart = commonChunk.astart
-					+ (blameEntry.suspectStart - commonChunk.bstart);
+			split.suspectStart = commonChunk.getAstart()
+					+ (blameEntry.suspectStart - commonChunk.getBstart());
 		}
 
 		split.suspect = parent;
 		result.add(split);
 
-		int same = commonChunk.bstart + commonChunk.length;
+		int same = commonChunk.getBstart() + commonChunk.getLength();
 		// postchunk that can not be blamed on this parent
 		int chunkEnd;
 		if (same < blameEntry.suspectStart + blameEntry.originalRange.length) {

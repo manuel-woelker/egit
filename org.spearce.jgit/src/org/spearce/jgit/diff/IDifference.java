@@ -34,7 +34,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.spearce.jgit.blame;
+package org.spearce.jgit.diff;
 
 /**
  * Difference interface, represents a run of different lines between to objects

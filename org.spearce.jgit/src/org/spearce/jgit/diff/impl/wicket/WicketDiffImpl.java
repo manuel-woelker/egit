@@ -1,8 +1,8 @@
 package org.spearce.jgit.diff.impl.wicket;
 
-import org.spearce.jgit.blame.Difference;
-import org.spearce.jgit.blame.IDiff;
-import org.spearce.jgit.blame.IDifference;
+import org.spearce.jgit.diff.Difference;
+import org.spearce.jgit.diff.IDiff;
+import org.spearce.jgit.diff.IDifference;
 
 /**
  * Diff implementation backed by the Apache wicket diff module

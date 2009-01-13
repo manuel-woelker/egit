@@ -34,18 +34,23 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package org.spearce.jgit.blame;
+package org.spearce.jgit.diff;
 
 /**
  * 
  */
-class CommonChunk {
-	int astart;
+public class CommonChunk {
+	final int astart;
 
-	int bstart;
+	final int bstart;
 
-	int length;
+	final int length;
 
+	/**
+	 * @param astart
+	 * @param bstart
+	 * @param length
+	 */
 	public CommonChunk(int astart, int bstart, int length) {
 		super();
 		this.astart = astart;
@@ -85,6 +90,27 @@ class CommonChunk {
 		if (length != other.length)
 			return false;
 		return true;
+	}
+
+	/**
+	 * @return start of chunk in B
+	 */
+	public int getAstart() {
+		return astart;
+	}
+
+	/**
+	 * @return start of chunk in B
+	 */
+	public int getBstart() {
+		return bstart;
+	}
+
+	/**
+	 * @return length of common chunk
+	 */
+	public int getLength() {
+		return length;
 	}
 
 }

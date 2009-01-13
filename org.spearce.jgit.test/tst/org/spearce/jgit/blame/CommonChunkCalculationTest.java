@@ -6,6 +6,9 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.spearce.jgit.diff.CommonChunk;
+import org.spearce.jgit.diff.IDifference;
+
 public class CommonChunkCalculationTest extends TestCase {
 	static class TestDifference implements IDifference {
 		int startA;
@@ -127,8 +130,8 @@ public class CommonChunkCalculationTest extends TestCase {
 			}
 			List<CommonChunk> invertedExpected = new ArrayList<CommonChunk>();
 			for (CommonChunk commonChunk : expected) {
-				invertedExpected.add(new CommonChunk(commonChunk.bstart,
-						commonChunk.astart, commonChunk.length));
+				invertedExpected.add(new CommonChunk(commonChunk.getBstart(),
+						commonChunk.getAstart(), commonChunk.getLength()));
 			}
 			List<CommonChunk> commonChunks = Scoreboard.computeCommonChunks(
 					invertedDifferences, lengthB, lengthA);

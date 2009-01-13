@@ -3,6 +3,8 @@ package org.spearce.jgit.blame;
 import java.util.Arrays;
 import java.util.List;
 
+import org.spearce.jgit.diff.CommonChunk;
+
 import junit.framework.TestCase;
 
 public class SplitOverlapTest extends TestCase {
