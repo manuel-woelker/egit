@@ -114,12 +114,13 @@ public class BlameEngine {
 	public void prettyPrint(List<BlameEntry> blameEntries) {
 		int lineno = 1;
 		for (BlameEntry blameEntry : blameEntries) {
-			Object[] data = blameEntry.suspect.getData();
+			// byte[] bytes = blameEntry.suspect.getBytes();
+			// RawParseUtils.
 
 			for (int i = blameEntry.suspectStart; i < blameEntry.suspectStart
 					+ blameEntry.originalRange.length; i++) {
-				System.out.println(String.format("%3d: [%.120s] %s", Integer
-						.valueOf(lineno), blameEntry.suspect, data[i]));
+				// System.out.println(String.format("%3d: [%.120s] %s", Integer
+				// .valueOf(lineno), blameEntry.suspect, data[i]));
 				lineno++;
 			}
 		}

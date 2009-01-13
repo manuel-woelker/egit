@@ -36,6 +36,7 @@
  */
 package org.spearce.jgit.diff;
 
+import org.spearce.jgit.util.IntList;
 
 /**
  * Generalized diff interface
@@ -59,4 +60,14 @@ public interface IDiff {
 	 * @return a list of differences between these two objects
 	 */
 	IDifference[] diff(Object[] a, Object[] b);
+
+	/**
+	 * @param parentBytes
+	 * @param parentLines
+	 * @param targetBytes
+	 * @param targetLines
+	 * @return Difference between files
+	 */
+	IDifference[] diff(byte[] parentBytes, IntList parentLines,
+			byte[] targetBytes, IntList targetLines);
 }

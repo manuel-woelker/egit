@@ -36,10 +36,6 @@
  */
 package org.spearce.jgit.blame;
 
-import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.spearce.jgit.lib.ObjectId;
 import org.spearce.jgit.lib.ObjectLoader;
 import org.spearce.jgit.lib.Repository;
@@ -110,24 +106,17 @@ public class Origin {
 	 * 
 	 * @return an array of strings containing the file lines
 	 */
-	public Object[] getData() {
+	public byte[] getBytes() {
 		try {
 			RevTree revTree = commit.getTree();
 			TreeEntry blobEntry = repository.mapTree(revTree).findBlobMember(
 					filename);
 			if (blobEntry == null) {
 				// does not exist yet
-				return new Object[0];
+				return new byte[0];
 			}
 			ObjectLoader objectLoader = repository.openBlob(blobEntry.getId());
-			String string = new String(objectLoader.getBytes());
-			Pattern pattern = Pattern.compile("^(.*)$", Pattern.MULTILINE);
-			Matcher matcher = pattern.matcher(string);
-			ArrayList<String> resultList = new ArrayList<String>();
-			while (matcher.find()) {
-				resultList.add(matcher.group(1));
-			}
-			return resultList.toArray();
+			return objectLoader.getBytes();
 		} catch (Exception e) {
 			throw new RuntimeException("Error retrieving data for origin "
 					+ this);

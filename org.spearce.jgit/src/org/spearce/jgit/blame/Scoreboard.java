@@ -49,6 +49,8 @@ import org.spearce.jgit.diff.IDifference;
 import org.spearce.jgit.lib.Repository;
 import org.spearce.jgit.revwalk.RevCommit;
 import org.spearce.jgit.revwalk.RevWalk;
+import org.spearce.jgit.util.IntList;
+import org.spearce.jgit.util.RawParseUtils;
 
 /**
  * Main structure for performing the blame algorithm
@@ -76,8 +78,9 @@ class Scoreboard {
 		this.finalOrigin = finalObject;
 		this.diff = diff;
 		BlameEntry blameEntry = new BlameEntry();
-		Object[] data = finalObject.getData();
-		blameEntry.originalRange = new Range(0, data.length);
+		byte[] bytes = finalObject.getBytes();
+		IntList lines = RawParseUtils.lineMap(bytes, 0, bytes.length);
+		blameEntry.originalRange = new Range(0, lines.size() - 1);
 		blameEntry.suspect = finalObject;
 		blameEntry.suspectStart = 0;
 		blameEntries.add(blameEntry);
@@ -164,12 +167,18 @@ class Scoreboard {
 	}
 
 	private void passBlameToParent(Origin target, Origin parent) {
-		IDifference[] differences = diff.diff(parent.getData(), target
-				.getData());
+		byte[] parentBytes = parent.getBytes();
+		byte[] targetBytes = target.getBytes();
+		IntList parentLines = RawParseUtils.lineMap(parentBytes, 0,
+				parentBytes.length);
+		IntList targetLines = RawParseUtils.lineMap(targetBytes, 0,
+				targetBytes.length);
+		IDifference[] differences = diff.diff(parentBytes, parentLines,
+				targetBytes, targetLines);
+
 		System.out.println("Inspecting " + target);
 		List<CommonChunk> commonChunks = computeCommonChunks(Arrays
-				.asList(differences), parent.getData().length,
-				target.getData().length);
+				.asList(differences), parentBytes.length, targetBytes.length);
 		System.out.println(commonChunks);
 		for (CommonChunk commonChunk : commonChunks) {
 			blameChunk(target, parent, commonChunk);
