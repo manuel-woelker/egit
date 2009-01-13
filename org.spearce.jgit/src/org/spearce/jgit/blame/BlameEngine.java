@@ -38,6 +38,7 @@ package org.spearce.jgit.blame;
 
 import java.util.List;
 
+import org.spearce.jgit.diff.impl.wicket.WicketDiffImpl;
 import org.spearce.jgit.lib.Constants;
 import org.spearce.jgit.lib.ObjectId;
 import org.spearce.jgit.lib.Repository;
@@ -97,7 +98,7 @@ public class BlameEngine {
 			revWalk.reset();
 			revWalk.markStart(commit);
 			Scoreboard scoreboard = new Scoreboard(revWalk, finalOrigin,
-					new JavaDiffImpl());
+					new WicketDiffImpl());
 			return scoreboard.assingBlame();
 		} catch (Exception e) {
 			throw new RuntimeException("Internal error in BlameEngine", e);
