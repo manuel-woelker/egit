@@ -7,44 +7,18 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.spearce.jgit.diff.CommonChunk;
-import org.spearce.jgit.diff.IDifference;
+import org.spearce.jgit.diff.Difference;
 
 public class CommonChunkCalculationTest extends TestCase {
-	static class TestDifference implements IDifference {
-		int startA;
-
-		int startB;
-
-		int endA;
-
-		int endB;
+	static class TestDifference extends Difference {
 
 		public TestDifference(int startA, int endA, int startB, int endB) {
-			super();
-			this.startA = startA;
-			this.startB = startB;
-			this.endA = endA;
-			this.endB = endB;
-		}
-
-		public int getStartA() {
-			return startA;
-		}
-
-		public int getStartB() {
-			return startB;
-		}
-
-		public int getEndA() {
-			return endA;
-		}
-
-		public int getEndB() {
-			return endB;
+			super(startA, endA, startB, endB);
 		}
 
 		TestDifference inverted() {
-			return new TestDifference(startB, endB, startA, endA);
+			return new TestDifference(getStartB(), getEndB(), getStartA(),
+					getEndA());
 		}
 	}
 

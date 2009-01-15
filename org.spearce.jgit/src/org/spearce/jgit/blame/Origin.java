@@ -36,6 +36,7 @@
  */
 package org.spearce.jgit.blame;
 
+import org.spearce.jgit.lib.AnyObjectId;
 import org.spearce.jgit.lib.ObjectId;
 import org.spearce.jgit.lib.ObjectLoader;
 import org.spearce.jgit.lib.Repository;
@@ -134,6 +135,39 @@ public class Origin {
 	@Override
 	public String toString() {
 		return filename + " --> " + commit;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((commit == null) ? 0 : commit.getId().hashCode());
+		result = prime * result
+				+ ((filename == null) ? 0 : filename.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Origin other = (Origin) obj;
+		if (commit == null) {
+			if (other.commit != null)
+				return false;
+		} else if (!AnyObjectId.equals(commit, other.commit))
+			return false;
+		if (filename == null) {
+			if (other.filename != null)
+				return false;
+		} else if (!filename.equals(other.filename))
+			return false;
+		return true;
 	}
 
 }

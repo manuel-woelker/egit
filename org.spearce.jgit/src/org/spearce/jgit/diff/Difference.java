@@ -73,4 +73,12 @@ public class Difference implements IDifference {
 		return true;
 	}
 
+	public int getLengthA() {
+		return endA < 0 ? 0 : endA - startA;
+	}
+
+	public int getLengthB() {
+		return endB < 0 ? 0 : endB - startB;
+	}
+
 }

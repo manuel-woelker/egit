@@ -56,6 +56,13 @@ public interface IDifference {
 	int getStartA();
 
 	/**
+	 * length of A, 0 if difference was added in B
+	 * 
+	 * @return index of difference in file A
+	 */
+	int getLengthA();
+
+	/**
 	 * ending index (0-based) of difference in file A (i.e. 0-based line number
 	 * in a file) note: if this is -1, that means the section in B was not
 	 * present in A
@@ -80,4 +87,12 @@ public interface IDifference {
 	 * @return index of difference in file A
 	 */
 	int getEndB();
+
+	/**
+	 * length of B, 0 if difference was added in A
+	 * 
+	 * @return index of difference in file B
+	 */
+	int getLengthB();
+
 }
