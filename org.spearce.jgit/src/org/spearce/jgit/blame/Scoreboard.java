@@ -46,7 +46,6 @@ import java.util.ListIterator;
 import org.spearce.jgit.diff.CommonChunk;
 import org.spearce.jgit.diff.IDiff;
 import org.spearce.jgit.diff.IDifference;
-import org.spearce.jgit.lib.Repository;
 import org.spearce.jgit.revwalk.RevCommit;
 import org.spearce.jgit.revwalk.RevWalk;
 import org.spearce.jgit.util.IntList;
@@ -67,14 +66,13 @@ class Scoreboard {
 
 	private final IDiff diff;
 
-	private final Repository repository;
-
 	private final RevWalk revWalk;
+
+	private IOriginSearchStrategy[] originSearchStrategies;
 
 	Scoreboard(RevWalk revWalk, Origin finalObject, IDiff diff) {
 		super();
 		this.revWalk = revWalk;
-		this.repository = revWalk.getRepository();
 		this.finalOrigin = finalObject;
 		this.diff = diff;
 		BlameEntry blameEntry = new BlameEntry();
@@ -84,6 +82,11 @@ class Scoreboard {
 		blameEntry.suspect = finalObject;
 		blameEntry.suspectStart = 0;
 		blameEntries.add(blameEntry);
+		originSearchStrategies = defaultOriginSearchStrategies();
+	}
+
+	IOriginSearchStrategy[] defaultOriginSearchStrategies() {
+		return new IOriginSearchStrategy[] { new SameNameOriginSearchStrategy() };
 	}
 
 	List<BlameEntry> assingBlame() {
@@ -371,17 +374,12 @@ class Scoreboard {
 	 * @return collection of scapegoat parent origins
 	 */
 	Origin[] findScapegoats(Origin origin) {
-		RevCommit commit = origin.commit;
-		try {
-			ArrayList<Origin> resultList = new ArrayList<Origin>();
-			for (RevCommit parent : commit.getParents()) {
-				resultList.add(new Origin(repository, parent, origin.filename));
+		for (IOriginSearchStrategy strategy : originSearchStrategies) {
+			Origin[] result = strategy.findOrigins(origin);
+			if (result.length != 0) {
+				return result;
 			}
-			return resultList.toArray(new Origin[0]);
-		} catch (Exception e) {
-			throw new RuntimeException(
-					"could not retrieve scapegoats for commit " + commit, e);
 		}
+		return new Origin[0];
 	}
-
 }

@@ -62,7 +62,15 @@ public class Origin {
 
 	final String filename;
 
-	private final Repository repository;
+	final Repository repository;
+
+	String getFilename() {
+		return filename;
+	}
+
+	Repository getRepository() {
+		return repository;
+	}
 
 	/**
 	 * creates a new Commit origin for a given commit and path
