@@ -15,9 +15,13 @@ import org.spearce.jgit.util.IntList;
 import org.spearce.jgit.util.RawParseUtils;
 
 class CopyModifiedSearchStrategy implements IOriginSearchStrategy {
-	final static double MAX_SCORE = 100000.0;
+	final static double MAX_SCORE = Integer.MAX_VALUE;
 
 	double maxScore = MAX_SCORE;
+
+	double thresholdScore = MAX_SCORE / 2;
+
+	int maxCandidates = 4;
 
 	private Repository repository;
 
@@ -40,14 +44,14 @@ class CopyModifiedSearchStrategy implements IOriginSearchStrategy {
 
 	private Collection<Origin> findOrigins(Origin source, RevCommit parent) {
 		IDiff diff = new WicketDiffImpl();
+		ScoreList<Integer, String> scoreList = new ScoreList<Integer, String>(
+				maxCandidates);
 		ArrayList<Origin> resultList = new ArrayList<Origin>();
 		try {
 			// Tree tree = repository.mapTree(parent);
 			TreeWalk treeWalk = new TreeWalk(repository);
 			treeWalk.reset(parent.getTree());
 			treeWalk.setRecursive(true);
-			int highestScore = -1;
-			String highestPath = null;
 			while (treeWalk.next()) {
 				if (!treeWalk.isSubtree()) {
 					// file
@@ -72,14 +76,14 @@ class CopyModifiedSearchStrategy implements IOriginSearchStrategy {
 					}
 					int commonLines = (totalLines - changedlines) / 2;
 					int score = (int) (commonLines * maxScore / maxLines);
-					if (score > highestScore) {
-						highestScore = score;
-						highestPath = treeWalk.getPathString();
+					if (score > thresholdScore) {
+						scoreList.add(Integer.valueOf(score), treeWalk
+								.getPathString());
 					}
 				}
 			}
-			if (highestScore > -1) {
-				resultList.add(new Origin(repository, parent, highestPath));
+			for (String path : scoreList.getEntries()) {
+				resultList.add(new Origin(repository, parent, path));
 			}
 
 		} catch (Exception e) {

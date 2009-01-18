@@ -38,6 +38,7 @@ package org.spearce.jgit.blame;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -86,7 +87,9 @@ class Scoreboard {
 	}
 
 	IOriginSearchStrategy[] defaultOriginSearchStrategies() {
-		return new IOriginSearchStrategy[] { new SameNameOriginSearchStrategy() };
+		return new IOriginSearchStrategy[] {
+				new SameNameOriginSearchStrategy(),
+				new CopyModifiedSearchStrategy(), };
 	}
 
 	List<BlameEntry> assingBlame() {
@@ -94,14 +97,13 @@ class Scoreboard {
 
 			while (true) {
 				RevCommit commit = revWalk.next();
-				BlameEntry todo = null;
+				HashSet<Origin> todos = new HashSet<Origin>();
 				/* find one suspect to break down */
 				boolean done = true;
 				for (BlameEntry blameEntry : blameEntries) {
 					if (blameEntry.suspect.commit.equals(commit)) {
-						todo = blameEntry;
+						todos.add(blameEntry.suspect);
 						done = false;
-						break;
 					}
 					if (!blameEntry.guilty) {
 						// break;
@@ -113,24 +115,25 @@ class Scoreboard {
 					break; // all done
 				}
 				if (commit == null) {
-					throw new RuntimeException("Internal error");
+					throw new RuntimeException(
+							"Internal error: not all guilty, but no more commits ");
 				}
-				if (todo == null) {
+				if (todos.isEmpty()) {
 					continue;
 				}
-				Origin suspect = todo.suspect;
-				passBlame(todo.suspect);
-
+				for (Origin todo : todos) {
+					passBlame(todo);
+				}
 				// Plead guilty for remaining entries
 				List<BlameEntry> guilty = new ArrayList<BlameEntry>();
 				for (BlameEntry blameEntry : blameEntries) {
-					if (suspect.equals(blameEntry.suspect)) {
+					if (commit.equals(blameEntry.suspect.commit)) {
 						blameEntry.guilty = true;
 						guilty.add(blameEntry);
 					}
 				}
 				if (!guilty.isEmpty()) {
-					System.out.println(suspect + " pleading guilty for:");
+					System.out.println(commit + " pleading guilty for:");
 				}
 				for (BlameEntry blameEntry : guilty) {
 					System.out.println("\t" + blameEntry);
@@ -179,9 +182,10 @@ class Scoreboard {
 		IDifference[] differences = diff.diff(parentBytes, parentLines,
 				targetBytes, targetLines);
 
-		System.out.println("Inspecting " + target);
+		System.out.println("Inspecting " + target + "....." + parent);
 		List<CommonChunk> commonChunks = computeCommonChunks(Arrays
-				.asList(differences), parentBytes.length, targetBytes.length);
+				.asList(differences), parentLines.size() - 1, targetLines
+				.size() - 1);
 		System.out.println(commonChunks);
 		for (CommonChunk commonChunk : commonChunks) {
 			blameChunk(target, parent, commonChunk);
