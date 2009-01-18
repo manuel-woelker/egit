@@ -1,11 +1,16 @@
 package org.spearce.jgit.blame;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
 import org.spearce.jgit.diff.IDiff;
 import org.spearce.jgit.diff.IDifference;
 import org.spearce.jgit.diff.impl.wicket.WicketDiffImpl;
+import org.spearce.jgit.errors.CorruptObjectException;
+import org.spearce.jgit.errors.IncorrectObjectTypeException;
+import org.spearce.jgit.errors.MissingObjectException;
+import org.spearce.jgit.lib.ObjectId;
 import org.spearce.jgit.lib.ObjectLoader;
 import org.spearce.jgit.lib.Repository;
 import org.spearce.jgit.revwalk.RevCommit;
@@ -49,14 +54,16 @@ class CopyModifiedSearchStrategy implements IOriginSearchStrategy {
 		ArrayList<Origin> resultList = new ArrayList<Origin>();
 		try {
 			// Tree tree = repository.mapTree(parent);
-			TreeWalk treeWalk = new TreeWalk(repository);
-			treeWalk.reset(parent.getTree());
-			treeWalk.setRecursive(true);
+			TreeWalk treeWalk = createTreeWalk(source, parent);
 			while (treeWalk.next()) {
 				if (!treeWalk.isSubtree()) {
 					// file
-					ObjectLoader openBlob = repository.openBlob(treeWalk
-							.getObjectId(0));
+					ObjectId objectId = treeWalk.getObjectId(0);
+					if (objectId == null || objectId.equals(ObjectId.zeroId())) {
+						// nothing to see here
+						continue;
+					}
+					ObjectLoader openBlob = repository.openBlob(objectId);
 					byte[] parentBytes = openBlob.getBytes();
 					byte[] targetBytes = source.getBytes();
 					IntList parentLines = RawParseUtils.lineMap(parentBytes, 0,
@@ -90,5 +97,14 @@ class CopyModifiedSearchStrategy implements IOriginSearchStrategy {
 			throw new RuntimeException(e);
 		}
 		return resultList;
+	}
+
+	protected TreeWalk createTreeWalk(Origin source, RevCommit parent)
+			throws MissingObjectException, IncorrectObjectTypeException,
+			CorruptObjectException, IOException {
+		TreeWalk treeWalk = new TreeWalk(repository);
+		treeWalk.reset(parent.getTree());
+		treeWalk.setRecursive(true);
+		return treeWalk;
 	}
 }

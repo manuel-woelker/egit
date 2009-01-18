@@ -17,7 +17,7 @@ import org.spearce.jgit.lib.Tree;
 import org.spearce.jgit.revwalk.RevCommit;
 import org.spearce.jgit.revwalk.RevWalk;
 
-public class CopyModifiedSearchStrategyTest extends RepositoryTestCase {
+public class RenameModifiedSearchStrategyTest extends RepositoryTestCase {
 	private static final String ENCODING = "UTF-8";
 
 	public void testPerfectMatch() throws Exception {
@@ -53,7 +53,7 @@ public class CopyModifiedSearchStrategyTest extends RepositoryTestCase {
 		}
 		RevWalk revWalk = new RevWalk(repo);
 		RevCommit latestCommit = revWalk.parseCommit(lastCommitId);
-		CopyModifiedSearchStrategy strategy = new CopyModifiedSearchStrategy();
+		RenameModifiedSearchStrategy strategy = new RenameModifiedSearchStrategy();
 		Origin[] origins = strategy.findOrigins(new Origin(repo, latestCommit,
 				"second"));
 		List<Origin> actual = Arrays.asList(origins);
@@ -97,7 +97,7 @@ public class CopyModifiedSearchStrategyTest extends RepositoryTestCase {
 		}
 		RevWalk revWalk = new RevWalk(repo);
 		RevCommit latestCommit = revWalk.parseCommit(lastCommitId);
-		CopyModifiedSearchStrategy strategy = new CopyModifiedSearchStrategy();
+		RenameModifiedSearchStrategy strategy = new RenameModifiedSearchStrategy();
 		Origin[] origins = strategy.findOrigins(new Origin(repo, latestCommit,
 				"second"));
 		List<Origin> actual = Arrays.asList(origins);
@@ -149,7 +149,7 @@ public class CopyModifiedSearchStrategyTest extends RepositoryTestCase {
 		}
 		RevWalk revWalk = new RevWalk(repo);
 		RevCommit latestCommit = revWalk.parseCommit(lastCommitId);
-		CopyModifiedSearchStrategy strategy = new CopyModifiedSearchStrategy();
+		RenameModifiedSearchStrategy strategy = new RenameModifiedSearchStrategy();
 		Origin[] origins = strategy.findOrigins(new Origin(repo, latestCommit,
 				"second"));
 		List<Origin> actual = Arrays.asList(origins);
@@ -193,7 +193,7 @@ public class CopyModifiedSearchStrategyTest extends RepositoryTestCase {
 		}
 		RevWalk revWalk = new RevWalk(repo);
 		RevCommit latestCommit = revWalk.parseCommit(lastCommitId);
-		CopyModifiedSearchStrategy strategy = new CopyModifiedSearchStrategy();
+		RenameModifiedSearchStrategy strategy = new RenameModifiedSearchStrategy();
 		Origin[] origins = strategy.findOrigins(new Origin(repo, latestCommit,
 				"second"));
 		List<Origin> actual = Arrays.asList(origins);
@@ -201,7 +201,7 @@ public class CopyModifiedSearchStrategyTest extends RepositoryTestCase {
 		assertEquals(expected, actual);
 	}
 
-	public void testActualCopy() throws Exception {
+	public void testCopyNotFound() throws Exception {
 		Repository repo = createNewEmptyRepo();
 		String a = "a 1\na 2\na 3\n";
 		String b = "b 1\n";
@@ -241,13 +241,11 @@ public class CopyModifiedSearchStrategyTest extends RepositoryTestCase {
 		}
 		RevWalk revWalk = new RevWalk(repo);
 		RevCommit latestCommit = revWalk.parseCommit(lastCommitId);
-		CopyModifiedSearchStrategy strategy = new CopyModifiedSearchStrategy();
+		RenameModifiedSearchStrategy strategy = new RenameModifiedSearchStrategy();
 		Origin[] origins = strategy.findOrigins(new Origin(repo, latestCommit,
 				"first_copy"));
 		List<Origin> actual = Arrays.asList(origins);
-		RevCommit firstCommit = revWalk.parseCommit(commitMap.get("first"));
-		List<Origin> expected = Arrays.asList(new Origin(repo, firstCommit,
-				"first"));
+		List<Origin> expected = Collections.EMPTY_LIST;
 		assertEquals(expected, actual);
 	}
 

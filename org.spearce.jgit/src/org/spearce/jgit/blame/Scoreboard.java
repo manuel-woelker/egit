@@ -89,6 +89,7 @@ class Scoreboard {
 	IOriginSearchStrategy[] defaultOriginSearchStrategies() {
 		return new IOriginSearchStrategy[] {
 				new SameNameOriginSearchStrategy(),
+				new RenameModifiedSearchStrategy(),
 				new CopyModifiedSearchStrategy(), };
 	}
 
