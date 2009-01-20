@@ -42,6 +42,7 @@ import org.spearce.jgit.diff.impl.wicket.WicketDiffImpl;
 import org.spearce.jgit.lib.Constants;
 import org.spearce.jgit.lib.ObjectId;
 import org.spearce.jgit.lib.Repository;
+import org.spearce.jgit.log.Origin;
 import org.spearce.jgit.revwalk.RevCommit;
 import org.spearce.jgit.revwalk.RevSort;
 import org.spearce.jgit.revwalk.RevWalk;

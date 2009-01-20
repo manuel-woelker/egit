@@ -1,6 +1,10 @@
-package org.spearce.jgit.blame;
+package org.spearce.jgit.log;
 
-interface IOriginSearchStrategy {
+/**
+ * @author Administrator
+ * 
+ */
+public interface IOriginSearchStrategy {
 
 	/**
 	 * Find origins for a specified origin source

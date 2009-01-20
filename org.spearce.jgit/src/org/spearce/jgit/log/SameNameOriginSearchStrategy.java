@@ -1,4 +1,4 @@
-package org.spearce.jgit.blame;
+package org.spearce.jgit.log;
 
 import java.util.ArrayList;
 
@@ -6,7 +6,11 @@ import org.spearce.jgit.lib.Repository;
 import org.spearce.jgit.lib.Tree;
 import org.spearce.jgit.revwalk.RevCommit;
 
-class SameNameOriginSearchStrategy implements IOriginSearchStrategy {
+/**
+ * Origin search strategy using the same filename
+ * 
+ */
+public class SameNameOriginSearchStrategy implements IOriginSearchStrategy {
 
 	public Origin[] findOrigins(Origin source) {
 		RevCommit commit = source.commit;

@@ -36,6 +36,8 @@
  */
 package org.spearce.jgit.blame;
 
+import org.spearce.jgit.log.Origin;
+
 /**
  * Blame entry, associating line numbers in the blamed file with origins The
  * output of blame is a list of these, covering all lines

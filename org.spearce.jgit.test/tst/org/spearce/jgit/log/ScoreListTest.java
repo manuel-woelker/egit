@@ -1,4 +1,4 @@
-package org.spearce.jgit.blame;
+package org.spearce.jgit.log;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -23,8 +23,8 @@ public class ScoreListTest extends TestCase {
 		ScoreList<Integer, String> scoreList = new ScoreList<Integer, String>(3);
 		scoreList.add(Integer.valueOf(1), "one");
 		scoreList.add(Integer.valueOf(2), "two");
-		assertEquals(new HashSet(Arrays.asList("one", "two")), new HashSet(
-				scoreList.getEntries()));
+		assertEquals(new HashSet<String>(Arrays.asList("one", "two")),
+				new HashSet<String>(scoreList.getEntries()));
 	}
 
 	public void testMulti() throws Exception {
@@ -34,8 +34,9 @@ public class ScoreListTest extends TestCase {
 		scoreList.add(Integer.valueOf(3), "three");
 		scoreList.add(Integer.valueOf(4), "four");
 		scoreList.add(Integer.valueOf(5), "five");
-		assertEquals(new HashSet(Arrays.asList("three", "four", "five")),
-				new HashSet(scoreList.getEntries()));
+		assertEquals(
+				new HashSet<String>(Arrays.asList("three", "four", "five")),
+				new HashSet<String>(scoreList.getEntries()));
 	}
 
 	public void testMulti2() throws Exception {
@@ -45,8 +46,9 @@ public class ScoreListTest extends TestCase {
 		scoreList.add(Integer.valueOf(4), "four");
 		scoreList.add(Integer.valueOf(1), "one");
 		scoreList.add(Integer.valueOf(2), "two");
-		assertEquals(new HashSet(Arrays.asList("three", "four", "five")),
-				new HashSet(scoreList.getEntries()));
+		assertEquals(
+				new HashSet<String>(Arrays.asList("three", "four", "five")),
+				new HashSet<String>(scoreList.getEntries()));
 	}
 
 	public void testMulti3() throws Exception {
@@ -56,15 +58,16 @@ public class ScoreListTest extends TestCase {
 		scoreList.add(Integer.valueOf(1), "one");
 		scoreList.add(Integer.valueOf(4), "four");
 		scoreList.add(Integer.valueOf(2), "two");
-		assertEquals(new HashSet(Arrays.asList("three", "four", "five")),
-				new HashSet(scoreList.getEntries()));
+		assertEquals(
+				new HashSet<String>(Arrays.asList("three", "four", "five")),
+				new HashSet<String>(scoreList.getEntries()));
 	}
 
 	public void testFCFS() throws Exception {
 		ScoreList<Integer, String> scoreList = new ScoreList<Integer, String>(1);
 		scoreList.add(Integer.valueOf(2), "a");
 		scoreList.add(Integer.valueOf(2), "b");
-		assertEquals(new HashSet(Arrays.asList("a")), new HashSet(scoreList
-				.getEntries()));
+		assertEquals(new HashSet<String>(Arrays.asList("a")),
+				new HashSet<String>(scoreList.getEntries()));
 	}
 }

@@ -2,8 +2,8 @@ package org.spearce.jgit.blame;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.spearce.jgit.lib.Commit;
@@ -14,6 +14,8 @@ import org.spearce.jgit.lib.PersonIdent;
 import org.spearce.jgit.lib.Repository;
 import org.spearce.jgit.lib.RepositoryTestCase;
 import org.spearce.jgit.lib.Tree;
+import org.spearce.jgit.log.Origin;
+import org.spearce.jgit.log.RenameModifiedSearchStrategy;
 import org.spearce.jgit.revwalk.RevCommit;
 import org.spearce.jgit.revwalk.RevWalk;
 
@@ -197,7 +199,7 @@ public class RenameModifiedSearchStrategyTest extends RepositoryTestCase {
 		Origin[] origins = strategy.findOrigins(new Origin(repo, latestCommit,
 				"second"));
 		List<Origin> actual = Arrays.asList(origins);
-		List<Origin> expected = Collections.EMPTY_LIST;
+		List<Origin> expected = new LinkedList<Origin>();
 		assertEquals(expected, actual);
 	}
 
@@ -245,7 +247,7 @@ public class RenameModifiedSearchStrategyTest extends RepositoryTestCase {
 		Origin[] origins = strategy.findOrigins(new Origin(repo, latestCommit,
 				"first_copy"));
 		List<Origin> actual = Arrays.asList(origins);
-		List<Origin> expected = Collections.EMPTY_LIST;
+		List<Origin> expected = new LinkedList<Origin>();
 		assertEquals(expected, actual);
 	}
 

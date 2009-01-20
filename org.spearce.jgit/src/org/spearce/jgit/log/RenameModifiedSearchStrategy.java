@@ -1,4 +1,4 @@
-package org.spearce.jgit.blame;
+package org.spearce.jgit.log;
 
 import java.io.IOException;
 
@@ -9,8 +9,12 @@ import org.spearce.jgit.revwalk.RevCommit;
 import org.spearce.jgit.treewalk.TreeWalk;
 import org.spearce.jgit.treewalk.filter.TreeFilter;
 
-class RenameModifiedSearchStrategy extends CopyModifiedSearchStrategy implements
-		IOriginSearchStrategy {
+/**
+ * Origin search strategy looking for the renamed and modified file
+ * 
+ */
+public class RenameModifiedSearchStrategy extends CopyModifiedSearchStrategy
+		implements IOriginSearchStrategy {
 
 	@Override
 	protected TreeWalk createTreeWalk(Origin source, RevCommit parent)

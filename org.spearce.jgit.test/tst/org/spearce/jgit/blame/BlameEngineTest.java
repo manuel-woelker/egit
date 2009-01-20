@@ -82,7 +82,8 @@ public class BlameEngineTest extends RepositoryTestCase {
 		for (i = 0; i < expectedCommitIds.length; i++) {
 			BlameEntry blameEntry = blame.get(i);
 			assertTrue(blameEntry.guilty);
-			assertEquals(expectedCommitIds[i], blameEntry.suspect.commit.copy());
+			assertEquals(expectedCommitIds[i], blameEntry.suspect.getCommit()
+					.copy());
 			assertEquals(expectedRanges[i], blameEntry.originalRange);
 			assertEquals("entry " + i, expectedSuspectStarts[i],
 					blameEntry.suspectStart);
@@ -148,7 +149,8 @@ public class BlameEngineTest extends RepositoryTestCase {
 		for (i = 0; i < expectedCommitIds.length; i++) {
 			BlameEntry blameEntry = blame.get(i);
 			assertTrue(blameEntry.guilty);
-			assertEquals(expectedCommitIds[i], blameEntry.suspect.commit.copy());
+			assertEquals(expectedCommitIds[i], blameEntry.suspect.getCommit()
+					.copy());
 			assertEquals(expectedRanges[i], blameEntry.originalRange);
 			assertEquals("entry " + i, expectedSuspectStarts[i],
 					blameEntry.suspectStart);
@@ -218,7 +220,8 @@ public class BlameEngineTest extends RepositoryTestCase {
 		for (i = 0; i < expectedCommitIds.length; i++) {
 			BlameEntry blameEntry = blame.get(i);
 			assertTrue(blameEntry.guilty);
-			assertEquals(expectedCommitIds[i], blameEntry.suspect.commit.copy());
+			assertEquals(expectedCommitIds[i], blameEntry.suspect.getCommit()
+					.copy());
 			assertEquals(expectedRanges[i], blameEntry.originalRange);
 			assertEquals("entry " + i, expectedSuspectStarts[i],
 					blameEntry.suspectStart);

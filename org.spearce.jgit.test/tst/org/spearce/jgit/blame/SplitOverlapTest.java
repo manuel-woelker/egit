@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.spearce.jgit.diff.CommonChunk;
+import org.spearce.jgit.log.Origin;
 
 import junit.framework.TestCase;
 

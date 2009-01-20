@@ -1,4 +1,4 @@
-package org.spearce.jgit.blame;
+package org.spearce.jgit.log;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,7 +19,11 @@ import org.spearce.jgit.treewalk.TreeWalk;
 import org.spearce.jgit.util.IntList;
 import org.spearce.jgit.util.RawParseUtils;
 
-class CopyModifiedSearchStrategy implements IOriginSearchStrategy {
+/**
+ * Origin search strategy looking for a copied and modified file
+ * 
+ */
+public class CopyModifiedSearchStrategy implements IOriginSearchStrategy {
 	final static double MAX_SCORE = Integer.MAX_VALUE;
 
 	double maxScore = MAX_SCORE;
@@ -99,6 +103,15 @@ class CopyModifiedSearchStrategy implements IOriginSearchStrategy {
 		return resultList;
 	}
 
+	/**
+	 * @param source
+	 * @param parent
+	 * @return tree walk for the origin search
+	 * @throws MissingObjectException
+	 * @throws IncorrectObjectTypeException
+	 * @throws CorruptObjectException
+	 * @throws IOException
+	 */
 	protected TreeWalk createTreeWalk(Origin source, RevCommit parent)
 			throws MissingObjectException, IncorrectObjectTypeException,
 			CorruptObjectException, IOException {

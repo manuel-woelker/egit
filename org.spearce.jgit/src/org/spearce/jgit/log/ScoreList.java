@@ -1,4 +1,4 @@
-package org.spearce.jgit.blame;
+package org.spearce.jgit.log;
 
 import java.util.ArrayList;
 import java.util.Collection;

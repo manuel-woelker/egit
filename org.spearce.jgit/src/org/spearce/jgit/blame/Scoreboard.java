@@ -47,6 +47,11 @@ import java.util.ListIterator;
 import org.spearce.jgit.diff.CommonChunk;
 import org.spearce.jgit.diff.IDiff;
 import org.spearce.jgit.diff.IDifference;
+import org.spearce.jgit.log.CopyModifiedSearchStrategy;
+import org.spearce.jgit.log.IOriginSearchStrategy;
+import org.spearce.jgit.log.Origin;
+import org.spearce.jgit.log.RenameModifiedSearchStrategy;
+import org.spearce.jgit.log.SameNameOriginSearchStrategy;
 import org.spearce.jgit.revwalk.RevCommit;
 import org.spearce.jgit.revwalk.RevWalk;
 import org.spearce.jgit.util.IntList;
@@ -102,7 +107,7 @@ class Scoreboard {
 				/* find one suspect to break down */
 				boolean done = true;
 				for (BlameEntry blameEntry : blameEntries) {
-					if (blameEntry.suspect.commit.equals(commit)) {
+					if (blameEntry.suspect.getCommit().equals(commit)) {
 						todos.add(blameEntry.suspect);
 						done = false;
 					}
@@ -128,7 +133,7 @@ class Scoreboard {
 				// Plead guilty for remaining entries
 				List<BlameEntry> guilty = new ArrayList<BlameEntry>();
 				for (BlameEntry blameEntry : blameEntries) {
-					if (commit.equals(blameEntry.suspect.commit)) {
+					if (commit.equals(blameEntry.suspect.getCommit())) {
 						blameEntry.guilty = true;
 						guilty.add(blameEntry);
 					}
