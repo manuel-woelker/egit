@@ -74,11 +74,11 @@ public class Difference implements IDifference {
 	}
 
 	public int getLengthA() {
-		return endA < 0 ? 0 : endA - startA;
+		return endA < 0 ? 0 : endA - startA +1;
 	}
 
 	public int getLengthB() {
-		return endB < 0 ? 0 : endB - startB;
+		return endB < 0 ? 0 : endB - startB +1;
 	}
 
 }
