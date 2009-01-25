@@ -108,6 +108,17 @@
                label="%CommitAction_label"
                menubarPath="team.main/group1"
                tooltip="%CommitAction_tooltip"/>
+         <action
+               class="org.spearce.egit.ui.internal.actions.Blame"
+               disabledIcon="icons/elcl16/annotate.gif"
+               icon="icons/elcl16/annotate.gif"
+               id="org.spearce.egit.ui.blameaction"
+               label="%BlameAction_label"
+               menubarPath="team.main/group2"
+               style="push"
+               toolbarPath="Normal/additions"
+               tooltip="%BlameAction_description">
+         </action>
 	  </objectContribution>
 	  <objectContribution
          id="org.spearce.egit.ui.resetto"
@@ -350,6 +361,17 @@
 		       toolbarPath="Normal/additions"
 		       tooltip="Start tracking the selected resources">
 		</action>
+  <action
+        class="org.spearce.egit.ui.internal.actions.Blame"
+        disabledIcon="icons/elcl16/annotate.gif"
+        icon="icons/elcl16/annotate.gif"
+        id="org.spearce.egit.ui.blameaction"
+        label="%BlameAction_label"
+        menubarPath="org.spearce.egit.ui.gitmenu/repositoryGroup"
+        style="push"
+        toolbarPath="Normal/additions"
+        tooltip="%BlameAction_description">
+  </action>
       </actionSet>
    </extension>
 </plugin>

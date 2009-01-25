@@ -224,6 +224,7 @@ public class GitHistoryPage extends HistoryPage implements RepositoryListener {
 		layoutSashForm(revInfoSplit, SPLIT_INFO);
 
 		revObjectSelectionProvider = new RevObjectSelectionProvider();
+		getHistoryPageSite().setSelectionProvider(revObjectSelectionProvider);
 		popupMgr = new MenuManager(null, POPUP_ID);
 		attachCommitSelectionChanged();
 		createLocalToolbarActions();
@@ -237,6 +238,29 @@ public class GitHistoryPage extends HistoryPage implements RepositoryListener {
 		layout();
 
 		Repository.addAnyRepositoryChangedListener(this);
+		revObjectSelectionProvider
+				.addSelectionChangedListener(new ISelectionChangedListener() {
+
+					// needed to detect selection recursion
+					private RevCommit lastCommit = null;
+
+					public void selectionChanged(SelectionChangedEvent event) {
+						if (event.getSelection() instanceof IStructuredSelection) {
+							IStructuredSelection selection = (IStructuredSelection) event
+									.getSelection();
+							Object first = selection.getFirstElement();
+							if (first instanceof RevCommit) {
+								RevCommit revCommit = (RevCommit) first;
+								if (lastCommit != revCommit) {
+									lastCommit = revCommit;
+									graph.selectCommit(revCommit);
+								}
+								lastCommit = revCommit;
+							}
+						}
+
+					}
+				});
 	}
 
 	private Runnable refschangedRunnable;

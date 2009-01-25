@@ -42,6 +42,20 @@ package org.spearce.jgit.blame;
 public class Range {
 	int start;
 
+	/**
+	 * @return start of range (0-based)
+	 */
+	public int getStart() {
+		return start;
+	}
+
+	/**
+	 * @return length of range, 0 if range is empty
+	 */
+	public int getLength() {
+		return length;
+	}
+
 	int length;
 
 	Range(int start, int length) {

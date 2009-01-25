@@ -41,6 +41,8 @@ import org.eclipse.swt.widgets.Widget;
 import org.spearce.egit.ui.Activator;
 import org.spearce.egit.ui.UIPreferences;
 import org.spearce.egit.ui.UIText;
+import org.spearce.egit.ui.internal.history.SWTCommitList.SWTLane;
+import org.spearce.jgit.lib.ObjectId;
 import org.spearce.jgit.revplot.PlotCommit;
 import org.spearce.jgit.revwalk.RevCommit;
 import org.spearce.jgit.revwalk.RevFlag;
@@ -119,8 +121,16 @@ class CommitGraphTable {
 	}
 
 	void selectCommit(final RevCommit c) {
-		table.setSelection(new StructuredSelection(c));
-		table.reveal(c);
+		// since RevCommit equals() by identity, we need to find the actual
+		// commit in the list
+		ObjectId copy = c.copy();
+		for (PlotCommit<SWTLane> commit : allCommits) {
+			if (copy.equals(commit.getId())) {
+				table.setSelection(new StructuredSelection(commit));
+				table.reveal(commit);
+				break;
+			}
+		}
 	}
 
 	void addSelectionChangedListener(final ISelectionChangedListener l) {
