@@ -56,7 +56,7 @@ public class OriginWalkTest extends RepositoryTestCase {
 		RevWalk revWalk = new RevWalk(repo);
 		RevCommit latestCommit = revWalk.parseCommit(lastCommitId);
 		OriginWalk originWalk = new OriginWalk(new Origin(repo, latestCommit,
-				"first"), repo);
+				"first"));
 		ArrayList<Origin> actual = new ArrayList<Origin>();
 		ArrayList<Origin[]> actualAncestors = new ArrayList<Origin[]>();
 		while (originWalk.hasNext()) {
@@ -119,7 +119,7 @@ public class OriginWalkTest extends RepositoryTestCase {
 		RevWalk revWalk = new RevWalk(repo);
 		RevCommit latestCommit = revWalk.parseCommit(lastCommitId);
 		OriginWalk originWalk = new OriginWalk(new Origin(repo, latestCommit,
-				"first"), repo);
+				"first"));
 		ArrayList<Origin> actual = new ArrayList<Origin>();
 		while (originWalk.hasNext()) {
 			actual.add(originWalk.next());

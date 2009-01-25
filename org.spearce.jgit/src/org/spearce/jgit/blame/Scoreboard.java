@@ -47,13 +47,8 @@ import java.util.ListIterator;
 import org.spearce.jgit.diff.CommonChunk;
 import org.spearce.jgit.diff.IDiff;
 import org.spearce.jgit.diff.IDifference;
-import org.spearce.jgit.log.CopyModifiedSearchStrategy;
-import org.spearce.jgit.log.IOriginSearchStrategy;
 import org.spearce.jgit.log.Origin;
-import org.spearce.jgit.log.RenameModifiedSearchStrategy;
-import org.spearce.jgit.log.SameNameOriginSearchStrategy;
-import org.spearce.jgit.revwalk.RevCommit;
-import org.spearce.jgit.revwalk.RevWalk;
+import org.spearce.jgit.log.OriginWalk;
 import org.spearce.jgit.util.IntList;
 import org.spearce.jgit.util.RawParseUtils;
 
@@ -72,13 +67,16 @@ class Scoreboard {
 
 	private final IDiff diff;
 
-	private final RevWalk revWalk;
+	private final OriginWalk originWalk;
 
-	private IOriginSearchStrategy[] originSearchStrategies;
-
-	Scoreboard(RevWalk revWalk, Origin finalObject, IDiff diff) {
+	/* package */Scoreboard(Origin finalObject,
+			IDiff diff) {
 		super();
-		this.revWalk = revWalk;
+		try {
+			originWalk = new OriginWalk(finalObject, false);
+		} catch (Exception e) {
+			throw new RuntimeException("Unable to create origin walk", e);
+		}
 		this.finalOrigin = finalObject;
 		this.diff = diff;
 		BlameEntry blameEntry = new BlameEntry();
@@ -88,26 +86,18 @@ class Scoreboard {
 		blameEntry.suspect = finalObject;
 		blameEntry.suspectStart = 0;
 		blameEntries.add(blameEntry);
-		originSearchStrategies = defaultOriginSearchStrategies();
 	}
 
-	IOriginSearchStrategy[] defaultOriginSearchStrategies() {
-		return new IOriginSearchStrategy[] {
-				new SameNameOriginSearchStrategy(),
-				new RenameModifiedSearchStrategy(),
-				new CopyModifiedSearchStrategy(), };
-	}
-
-	List<BlameEntry> assingBlame() {
+	/* package */List<BlameEntry> assingBlame() {
 		try {
 
 			while (true) {
-				RevCommit commit = revWalk.next();
+				Origin origin = originWalk.next();
 				HashSet<Origin> todos = new HashSet<Origin>();
 				/* find one suspect to break down */
 				boolean done = true;
 				for (BlameEntry blameEntry : blameEntries) {
-					if (blameEntry.suspect.getCommit().equals(commit)) {
+					if (blameEntry.suspect.equals(origin)) {
 						todos.add(blameEntry.suspect);
 						done = false;
 					}
@@ -120,9 +110,9 @@ class Scoreboard {
 				if (done) {
 					break; // all done
 				}
-				if (commit == null) {
+				if (origin == null) {
 					throw new RuntimeException(
-							"Internal error: not all guilty, but no more commits ");
+							"Internal error: not all guilty, but no more origins ");
 				}
 				if (todos.isEmpty()) {
 					continue;
@@ -133,13 +123,13 @@ class Scoreboard {
 				// Plead guilty for remaining entries
 				List<BlameEntry> guilty = new ArrayList<BlameEntry>();
 				for (BlameEntry blameEntry : blameEntries) {
-					if (commit.equals(blameEntry.suspect.getCommit())) {
+					if (origin.equals(blameEntry.suspect)) {
 						blameEntry.guilty = true;
 						guilty.add(blameEntry);
 					}
 				}
 				if (!guilty.isEmpty()) {
-					System.out.println(commit + " pleading guilty for:");
+					System.out.println(origin + " pleading guilty for:");
 				}
 				for (BlameEntry blameEntry : guilty) {
 					System.out.println("\t" + blameEntry);
@@ -375,8 +365,7 @@ class Scoreboard {
 	 * this origin can pass blame on
 	 * 
 	 * 
-	 * Note: currently only the same filename is used, that means renames and
-	 * copies are not found
+	 * Note: The main work is done by the OriginWalk
 	 * 
 	 * @param origin
 	 *            the origin for which to retrieve the scapegoats
@@ -384,12 +373,6 @@ class Scoreboard {
 	 * @return collection of scapegoat parent origins
 	 */
 	Origin[] findScapegoats(Origin origin) {
-		for (IOriginSearchStrategy strategy : originSearchStrategies) {
-			Origin[] result = strategy.findOrigins(origin);
-			if (result.length != 0) {
-				return result;
-			}
-		}
-		return new Origin[0];
+		return originWalk.getAncestorOrigins();
 	}
 }

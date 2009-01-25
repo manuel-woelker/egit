@@ -44,7 +44,6 @@ import org.spearce.jgit.lib.ObjectId;
 import org.spearce.jgit.lib.Repository;
 import org.spearce.jgit.log.Origin;
 import org.spearce.jgit.revwalk.RevCommit;
-import org.spearce.jgit.revwalk.RevSort;
 import org.spearce.jgit.revwalk.RevWalk;
 
 /**
@@ -95,10 +94,7 @@ public class BlameEngine {
 	public List<BlameEntry> blame(RevCommit commit, String path) {
 		try {
 			Origin finalOrigin = new Origin(repository, commit, path);
-			revWalk.sort(RevSort.TOPO);
-			revWalk.reset();
-			revWalk.markStart(commit);
-			Scoreboard scoreboard = new Scoreboard(revWalk, finalOrigin,
+			Scoreboard scoreboard = new Scoreboard(finalOrigin,
 					new WicketDiffImpl());
 			return scoreboard.assingBlame();
 		} catch (Exception e) {

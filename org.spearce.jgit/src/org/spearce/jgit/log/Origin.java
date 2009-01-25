@@ -52,26 +52,12 @@ import org.spearce.jgit.revwalk.RevTree;
  */
 public class Origin {
 
-	final RevCommit commit;
+	final protected RevCommit commit;
 
-	/**
-	 * @return the associated commit
-	 */
-	public RevCommit getCommit() {
-		return commit;
-	}
 
-	final String filename;
+	final protected String filename;
 
-	final Repository repository;
-
-	String getFilename() {
-		return filename;
-	}
-
-	Repository getRepository() {
-		return repository;
-	}
+	final protected Repository repository;
 
 	/**
 	 * creates a new Commit origin for a given commit and path
@@ -132,6 +118,28 @@ public class Origin {
 		}
 	}
 
+	/**
+	 * @return the associated commit
+	 */
+	public RevCommit getCommit() {
+		return commit;
+	}
+
+	/**
+	 * @return filename of this Origin
+	 */
+	public String getFilename() {
+		return filename;
+	}
+
+	/**
+	 * @return the repository of this Origin 
+	 */
+	public Repository getRepository() {
+		return repository;
+	}
+
+	
 	@Override
 	public String toString() {
 		return filename + " --> " + commit;

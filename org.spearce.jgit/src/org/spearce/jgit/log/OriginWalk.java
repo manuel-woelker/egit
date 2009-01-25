@@ -34,7 +34,7 @@ public class OriginWalk implements Iterable<Origin>, Iterator<Origin> {
 
 	private RevWalk revWalk;
 
-	private IOriginSearchStrategy[] originSearchStrategies = new IOriginSearchStrategy[] { new SameNameOriginSearchStrategy() };
+	private IOriginSearchStrategy[] originSearchStrategies = new IOriginSearchStrategy[] { new SameNameOriginSearchStrategy(), new CopyModifiedSearchStrategy() };
 
 	private Origin[] parentOrigins = NO_ORIGINS;
 
@@ -42,39 +42,37 @@ public class OriginWalk implements Iterable<Origin>, Iterator<Origin> {
 
 	private Origin[] ancestorOrigins;
 
+	private final boolean skipFirst;
+
 	/**
 	 * Standard constructor
 	 * 
 	 * @param initalOrigin
-	 * @param repository
-	 * @throws IOException
-	 * @throws IncorrectObjectTypeException
-	 * @throws MissingObjectException
+	 * @param skipFirst skip the first origin if it contains no changes from the second to last origin
 	 */
-	public OriginWalk(Origin initalOrigin, Repository repository)
-			throws MissingObjectException, IncorrectObjectTypeException,
-			IOException {
-		super();
-		this.initalOrigin = initalOrigin;
-		this.repository = repository;
-		revWalk = new RevWalk(repository);
-		revWalk.sort(RevSort.TOPO);
-		revWalk.markStart(initalOrigin.getCommit());
-		RevCommit lastSameCommit = findLastSameCommit(initalOrigin);
-		Origin firstOrigin = new Origin(repository, lastSameCommit,
-				initalOrigin.filename);
-		pendingOrigins.add(firstOrigin);
-		addOrigin(initalOrigin);
-	}
+	public OriginWalk(Origin initalOrigin, boolean skipFirst)
 
-	void addOrigin(Origin origin) {
-		RevCommit commit = origin.getCommit();
-		HashSet<Origin> originSet = commitMap.get(commit);
-		if (originSet == null) {
-			originSet = new HashSet<Origin>();
-			commitMap.put(commit, originSet);
-		}
-		originSet.add(origin);
+			 {
+		super();
+		try {
+			this.initalOrigin = initalOrigin;
+			this.skipFirst = skipFirst;
+			this.repository = initalOrigin.getRepository();
+			revWalk = new RevWalk(repository);
+			revWalk.sort(RevSort.TOPO);
+			revWalk.markStart(initalOrigin.getCommit());
+			RevCommit startCommit = initalOrigin.getCommit();
+			
+			if(skipFirst) {
+				startCommit = findLastSameCommit(initalOrigin);
+			}
+			
+			Origin firstOrigin = new Origin(repository, startCommit,
+					initalOrigin.filename);
+			pendingOrigins.add(firstOrigin);
+		} catch (Exception e) {
+			throw new RuntimeException("Unable to create Origin walk", e);
+		}	
 	}
 
 	/**
@@ -87,7 +85,14 @@ public class OriginWalk implements Iterable<Origin>, Iterator<Origin> {
 	 */
 	public OriginWalk(OriginWalk other) throws MissingObjectException,
 			IncorrectObjectTypeException, IOException {
-		this(other.initalOrigin, other.repository);
+		this(other.initalOrigin, other.skipFirst);
+	}
+
+	/** Constructor for log use
+	 * @param initalOrigin
+	 */
+	public OriginWalk(Origin initalOrigin) {
+		this(initalOrigin, true);
 	}
 
 	public Iterator<Origin> iterator() {
@@ -104,6 +109,9 @@ public class OriginWalk implements Iterable<Origin>, Iterator<Origin> {
 
 	public Origin next() {
 		try {
+			if(pendingOrigins.isEmpty()) {
+				return null;
+			}
 			currentOrigin = pendingOrigins.remove();
 			parentOrigins = NO_ORIGINS;
 			for (IOriginSearchStrategy strategy : originSearchStrategies) {
