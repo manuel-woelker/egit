@@ -39,7 +39,6 @@ package org.spearce.jgit.blame;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -179,7 +178,7 @@ class Scoreboard {
 				targetBytes, targetLines);
 
 		System.out.println("Inspecting " + target + "....." + parent);
-		List<CommonChunk> commonChunks = computeCommonChunks(Arrays
+		List<CommonChunk> commonChunks = CommonChunk.computeCommonChunks(Arrays
 				.asList(differences), parentLines.size() - 1, targetLines
 				.size() - 1);
 		System.out.println(commonChunks);
@@ -290,71 +289,6 @@ class Scoreboard {
 		if (sum != blameEntry.originalRange.length) {
 			throw new RuntimeException("Internal error splitting blameentries");
 		}
-		return result;
-	}
-
-	static List<CommonChunk> computeCommonChunks(
-			List<? extends IDifference> differences, int lengthA, int lengthB) {
-		List<CommonChunk> result = new LinkedList<CommonChunk>();
-		// check no differences -> all in common
-		if (differences.isEmpty()) {
-			result.add(new CommonChunk(0, 0, lengthA));
-			return result;
-		}
-		IDifference firstDifference = differences.get(0);
-		// commmon prefix
-		int commonPrefixLength = Math.min(firstDifference.getStartA(),
-				firstDifference.getStartB());
-		if (commonPrefixLength > 0) {
-			result.add(new CommonChunk(0, 0, commonPrefixLength));
-		}
-		Iterator<? extends IDifference> it = differences.iterator();
-		IDifference previousDifference = it.next();
-
-		for (; it.hasNext();) {
-			IDifference nextDifference = it.next();
-			int lastChangedLineA = previousDifference.getEndA();
-			if (lastChangedLineA == -1)
-				lastChangedLineA = previousDifference.getStartA() - 1;
-			int firstCommonLineA = lastChangedLineA + 1;
-
-			int lastChangedLineB = previousDifference.getEndB();
-			if (lastChangedLineB == -1)
-				lastChangedLineB = previousDifference.getStartB() - 1;
-			int firstCommonLineB = lastChangedLineB + 1;
-			int commonLengthA = nextDifference.getStartA() - firstCommonLineA;
-			int commonLengthB = nextDifference.getStartB() - firstCommonLineB;
-			if (commonLengthA != commonLengthA) {
-				throw new RuntimeException("lengths not equal: "
-						+ commonLengthA + "!=" + commonLengthB);
-			}
-			result.add(new CommonChunk(firstCommonLineA, firstCommonLineB,
-					commonLengthA));
-			previousDifference = nextDifference;
-		}
-
-		// common suffix
-		IDifference lastDifference = differences.get(differences.size() - 1);
-		int lastChangedLineA = lastDifference.getEndA();
-		if (lastChangedLineA == -1)
-			lastChangedLineA = lastDifference.getStartA() - 1;
-		int firstCommonLineA = lastChangedLineA + 1;
-
-		int lastChangedLineB = lastDifference.getEndB();
-		if (lastChangedLineB == -1)
-			lastChangedLineB = lastDifference.getStartB() - 1;
-		int firstCommonLineB = lastChangedLineB + 1;
-		int commonSuffixLength = Math.min(lengthA - firstCommonLineA, lengthB
-				- firstCommonLineB);
-
-		if (commonSuffixLength > 0) {
-			result.add(new CommonChunk(firstCommonLineA, firstCommonLineB,
-					commonSuffixLength));
-		}
-
-		// Sanity check
-		// TODO:
-
 		return result;
 	}
 

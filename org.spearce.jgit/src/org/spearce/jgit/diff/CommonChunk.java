@@ -36,6 +36,10 @@
  */
 package org.spearce.jgit.diff;
 
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * 
  */
@@ -113,4 +117,72 @@ public class CommonChunk {
 		return length;
 	}
 
+	/** Compute common chunks (i.e. LCSs) from a list of differences between to lists a and b
+	 * @param differences the calculated differences for a and b
+	 * @param lengthA the total length of A
+	 * @param lengthB the total length of B
+	 * @return list the list of common subsequences
+	 */
+	public static List<CommonChunk> computeCommonChunks(
+			List<? extends IDifference> differences, int lengthA, int lengthB) {
+		List<CommonChunk> result = new LinkedList<CommonChunk>();
+		// check no differences -> all in common
+		if (differences.isEmpty()) {
+			result.add(new CommonChunk(0, 0, lengthA));
+			return result;
+		}
+		IDifference firstDifference = differences.get(0);
+		// common prefix
+		int commonLengthA = firstDifference.getStartA();
+		int commonLengthB = firstDifference.getStartB();
+		if (commonLengthA != commonLengthB) {
+			throw new RuntimeException("lengths not equal: "
+					+ commonLengthA + "!=" + commonLengthB);
+		}
+		int commonPrefixLength = commonLengthA;
+		if (commonPrefixLength > 0) {
+			result.add(new CommonChunk(0, 0, commonPrefixLength));
+		}
+		Iterator<? extends IDifference> it = differences.iterator();
+		IDifference previousDifference = it.next();
+	
+		for (; it.hasNext();) {
+			IDifference nextDifference = it.next();
+			int firstCommonLineA = previousDifference.getStartA()+previousDifference.getLengthA();
+			int firstCommonLineB = previousDifference.getStartB()+previousDifference.getLengthB();
+			commonLengthA = nextDifference.getStartA() - firstCommonLineA;
+			commonLengthB = nextDifference.getStartB() - firstCommonLineB;
+			if (commonLengthA != commonLengthB) {
+				throw new RuntimeException("lengths not equal: "
+						+ commonLengthA + "!=" + commonLengthB);
+			}
+			result.add(new CommonChunk(firstCommonLineA, firstCommonLineB,
+					commonLengthA));
+			previousDifference = nextDifference;
+		}
+	
+		// common suffix
+		IDifference lastDifference = differences.get(differences.size() - 1);
+		int firstCommonLineA = lastDifference.getStartA()+lastDifference.getLengthA();
+		int firstCommonLineB = lastDifference.getStartB()+lastDifference.getLengthB();
+		commonLengthA = lengthA - firstCommonLineA;
+		commonLengthB = lengthB - firstCommonLineB;
+		if (commonLengthA != commonLengthB) {
+			throw new RuntimeException("lengths not equal: "
+					+ commonLengthA + "!=" + commonLengthB);
+		}
+		int commonSuffixLength = commonLengthA;
+	
+		if (commonSuffixLength > 0) {
+			result.add(new CommonChunk(firstCommonLineA, firstCommonLineB,
+					commonSuffixLength));
+		}
+	
+		// TODO: Sanity check
+	
+		return result;
+	}
+
+	
+	
 }

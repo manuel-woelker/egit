@@ -33,7 +33,7 @@ public class CommonChunkCalculationTest extends TestCase {
 	public void testSimpleCommonPrefix() throws Exception {
 		int length = 100;
 		List<TestDifference> differences = Arrays.asList(new TestDifference(3,
-				length, 7, length));
+				length, 3, length));
 		List<CommonChunk> expected = Arrays.asList(new CommonChunk(0, 0, 3));
 		assertComputation(differences, expected, length, length);
 	}
@@ -63,7 +63,7 @@ public class CommonChunkCalculationTest extends TestCase {
 		List<TestDifference> differences = Arrays.asList(new TestDifference(0,
 				12, 0, -1));
 		List<CommonChunk> expected = Arrays.asList(new CommonChunk(13, 0, 19));
-		assertComputation(differences, expected, 32, 20);
+		assertComputation(differences, expected, 32, 19);
 	}
 
 	public void testSimpleAdditionMiddle() throws Exception {
@@ -78,7 +78,7 @@ public class CommonChunkCalculationTest extends TestCase {
 		List<TestDifference> differences = Arrays.asList(new TestDifference(10,
 				12, 10, -1));
 		List<CommonChunk> expected = Arrays.asList(new CommonChunk(0, 0, 10));
-		assertComputation(differences, expected, 12, 10);
+		assertComputation(differences, expected, 13, 10);
 	}
 
 	public void testSimpleAdditionTwoDifferences() throws Exception {
@@ -92,7 +92,7 @@ public class CommonChunkCalculationTest extends TestCase {
 	private void assertComputation(List<TestDifference> differences,
 			List<CommonChunk> expected, int lengthA, int lengthB) {
 		{
-			List<CommonChunk> commonChunks = Scoreboard.computeCommonChunks(
+			List<CommonChunk> commonChunks = CommonChunk.computeCommonChunks(
 					differences, lengthA, lengthB);
 			assertEquals(expected, commonChunks);
 		}
@@ -107,7 +107,7 @@ public class CommonChunkCalculationTest extends TestCase {
 				invertedExpected.add(new CommonChunk(commonChunk.getBstart(),
 						commonChunk.getAstart(), commonChunk.getLength()));
 			}
-			List<CommonChunk> commonChunks = Scoreboard.computeCommonChunks(
+			List<CommonChunk> commonChunks = CommonChunk.computeCommonChunks(
 					invertedDifferences, lengthB, lengthA);
 			assertEquals(invertedExpected, commonChunks);
 		}
