@@ -24,7 +24,8 @@ public class BlameEngineTest extends RepositoryTestCase {
 		System.out.println(repository.getFullBranch());
 		BlameEngine blameEngine = new BlameEngine(repository);
 //		List<BlameEntry> blame = blameEngine.blame("EGIT_INSTALL");
-		 List<BlameEntry> blame = blameEngine.blame("SUBMITTING_PATCHES");
+//		 List<BlameEntry> blame = blameEngine.blame("SUBMITTING_PATCHES");
+		 List<BlameEntry> blame = blameEngine.blame("org.spearce.jgit/src/org/spearce/jgit/diff/CommonChunk.java");
 		// List<BlameEntry> blame = blameEngine.blame(repository,
 		// "org.spearce.jgit/.classpath");
 		// List<BlameEntry> blame = blameEngine.blame(repository, "TODO");

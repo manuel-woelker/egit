@@ -24,13 +24,13 @@ import org.spearce.jgit.util.RawParseUtils;
  * 
  */
 public class CopyModifiedSearchStrategy implements IOriginSearchStrategy {
-	final static double MAX_SCORE = Integer.MAX_VALUE;
+	final static double MAX_SCORE = 1000;
 
 	double maxScore = MAX_SCORE;
 
-	double thresholdScore = MAX_SCORE / 2;
+	double thresholdScore = MAX_SCORE / 5;
 
-	int maxCandidates = 4;
+	int maxCandidates = 2;
 
 	private Repository repository;
 
@@ -87,9 +87,10 @@ public class CopyModifiedSearchStrategy implements IOriginSearchStrategy {
 					}
 					int commonLines = (totalLines - changedlines) / 2;
 					int score = (int) (commonLines * maxScore / maxLines);
+					String pathString = treeWalk
+					.getPathString();
 					if (score > thresholdScore) {
-						scoreList.add(Integer.valueOf(score), treeWalk
-								.getPathString());
+						scoreList.add(Integer.valueOf(score), pathString);
 					}
 				}
 			}

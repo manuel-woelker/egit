@@ -1,6 +1,7 @@
 package org.spearce.jgit.log;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -34,7 +35,11 @@ public class OriginWalk implements Iterable<Origin>, Iterator<Origin> {
 
 	private RevWalk revWalk;
 
-	private IOriginSearchStrategy[] originSearchStrategies = new IOriginSearchStrategy[] { new SameNameOriginSearchStrategy(), new CopyModifiedSearchStrategy() };
+	private IOriginSearchStrategy[] originSearchStrategies = new IOriginSearchStrategy[] {
+			new SameNameOriginSearchStrategy(),
+			new RenameModifiedSearchStrategy(), 
+//			new CopyModifiedSearchStrategy(),
+			};
 
 	private Origin[] parentOrigins = NO_ORIGINS;
 
@@ -43,6 +48,8 @@ public class OriginWalk implements Iterable<Origin>, Iterator<Origin> {
 	private Origin[] ancestorOrigins;
 
 	private final boolean skipFirst;
+	
+	private HashSet<Origin> seenOrigins = new HashSet<Origin>();
 
 	/**
 	 * Standard constructor
@@ -69,10 +76,17 @@ public class OriginWalk implements Iterable<Origin>, Iterator<Origin> {
 			
 			Origin firstOrigin = new Origin(repository, startCommit,
 					initalOrigin.filename);
-			pendingOrigins.add(firstOrigin);
+			queueOrigin(firstOrigin);
 		} catch (Exception e) {
 			throw new RuntimeException("Unable to create Origin walk", e);
 		}	
+	}
+
+	private void queueOrigin(Origin origin) {
+		if(!seenOrigins.contains(origin)) {
+			pendingOrigins.add(origin);
+			seenOrigins.add(origin);
+		}
 	}
 
 	/**
@@ -114,12 +128,15 @@ public class OriginWalk implements Iterable<Origin>, Iterator<Origin> {
 			}
 			currentOrigin = pendingOrigins.remove();
 			parentOrigins = NO_ORIGINS;
+			HashSet<Origin> pOrigins = new HashSet<Origin>();
 			for (IOriginSearchStrategy strategy : originSearchStrategies) {
 				parentOrigins = strategy.findOrigins(currentOrigin);
-				if (parentOrigins.length != 0) {
+				pOrigins.addAll(Arrays.asList(parentOrigins));
+				if (pOrigins.size() > 1) {
 					break;
 				}
 			}
+			parentOrigins = pOrigins.toArray(new Origin[0]);
 			ancestorOrigins = new Origin[parentOrigins.length];
 			for (int i = 0; i < ancestorOrigins.length; i++) {
 				Origin parentOrigin = parentOrigins[i];
@@ -127,7 +144,7 @@ public class OriginWalk implements Iterable<Origin>, Iterator<Origin> {
 				Origin ancestorOrigin = new Origin(repository, ancestorCommit,
 						parentOrigin.filename);
 				ancestorOrigins[i] = ancestorOrigin;
-				pendingOrigins.add(ancestorOrigin);
+				queueOrigin(ancestorOrigin);
 			}
 			return currentOrigin;
 		} catch (Exception e) {

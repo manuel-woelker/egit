@@ -80,7 +80,7 @@ public class BlameOperation implements IWorkspaceRunnable {
 
 		@Override
 		public Date getDate() {
-			return new Date(revCommit.getCommitTime());
+			return revCommit.getAuthorIdent().getWhen();
 		}
 
 		@Override
