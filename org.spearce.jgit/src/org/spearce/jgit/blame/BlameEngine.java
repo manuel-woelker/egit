@@ -54,8 +54,8 @@ public class BlameEngine {
 
 	private final RevWalk revWalk;
 
-	/**
-	 * @param repository
+	/** Standard constructor
+	 * @param repository the repository on which to perform the blame
 	 */
 	public BlameEngine(final Repository repository) {
 		this(new RevWalk(repository));

@@ -37,10 +37,11 @@
 package org.spearce.jgit.blame;
 
 /**
- * 
+ *  A range of lines in a file
  */
 public class Range {
 	int start;
+	int length;
 
 	/**
 	 * @return start of range (0-based)
@@ -56,7 +57,6 @@ public class Range {
 		return length;
 	}
 
-	int length;
 
 	Range(int start, int length) {
 		this.start = start;

@@ -3,6 +3,11 @@ package org.spearce.jgit.log;
 import java.util.ArrayList;
 import java.util.Collection;
 
+/**
+ * A class for keeping a list of top scoring values
+ * @param <SCORE> scoring type
+ * @param <VALUE> value type
+ */
 class ScoreList<SCORE extends Comparable, VALUE> {
 
 	final Entry[] entries;

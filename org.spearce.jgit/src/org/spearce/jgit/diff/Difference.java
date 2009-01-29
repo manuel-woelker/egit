@@ -1,6 +1,8 @@
 package org.spearce.jgit.diff;
 
-/**
+/** Difference between two files
+ * 
+ * This represents a sequence of lines that are different between two files A and B 
  *
  */
 public class Difference implements IDifference {
@@ -12,11 +14,11 @@ public class Difference implements IDifference {
 
 	final int endB;
 
-	/**
-	 * @param startA
-	 * @param endA
-	 * @param startB
-	 * @param endB
+	/** Standard constructor
+	 * @param startA start in file A (0-based line index)
+	 * @param endA end in file A (0-based line index)
+	 * @param startB start in file B (0-based line index)
+	 * @param endB end in file B (0-based line index)
 	 */
 	public Difference(int startA, int endA, int startB, int endB) {
 		super();

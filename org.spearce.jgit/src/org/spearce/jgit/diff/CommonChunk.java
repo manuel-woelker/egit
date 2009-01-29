@@ -41,7 +41,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * 
+ *  A continuous sequence of lines that are common between two files 
  */
 public class CommonChunk {
 	final int astart;
@@ -50,10 +50,10 @@ public class CommonChunk {
 
 	final int length;
 
-	/**
-	 * @param astart
-	 * @param bstart
-	 * @param length
+	/** Standard constructor
+	 * @param astart start of chunk in file A (0-based line index)
+	 * @param bstart start of chunk in file B (0-based line index)
+	 * @param length length of the chunk (in lines)
 	 */
 	public CommonChunk(int astart, int bstart, int length) {
 		super();
@@ -97,14 +97,14 @@ public class CommonChunk {
 	}
 
 	/**
-	 * @return start of chunk in B
+	 * @return start of chunk in B (0-based)
 	 */
 	public int getAstart() {
 		return astart;
 	}
 
 	/**
-	 * @return start of chunk in B
+	 * @return start of chunk in B (0-based)
 	 */
 	public int getBstart() {
 		return bstart;
