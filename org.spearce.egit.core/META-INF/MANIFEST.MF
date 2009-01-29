@@ -14,7 +14,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui,
  org.eclipse.ui.editors,
  org.eclipse.team.ui,
- org.eclipse.jface.text;bundle-version="3.4.1"
+ org.eclipse.jface.text
 Export-Package: org.spearce.egit.core.internal.storage;x-friends:="org.spearce.egit.ui",
  org.spearce.egit.core,
  org.spearce.egit.core.op,
